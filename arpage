@@ -1,0 +1,5 @@
+<?php 
+session_start();
+$_SESSION['placename'] = 'ibeacon1';
+header('Location: ../countview.php');
+?>
