@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>EddvisAR Augmented Reality - Sign-In</title>
+    
+    
+    <link rel="stylesheet" href="css/normalize1.css">
+
+    <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'>
+
+    <link rel="stylesheet" href="css/style2.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    
+    <script src="jquery-3.0.0.js"></script>
+    
+  </head>
+
+  <body>
+
+
+  <style type="text/css">
+
+    .fb-login-button {
+      width: 1900px !important;
+      font-size: 16px !important;
+      line-height: 30px !important;
+      padding: 3px 8px !important;
+    }
+
+    .facebooklogo {
+      width:300px;
+      top: 20px;
+      left: 30px;
+    }
+
+
+  </style>
+
+
+  	<script>
+        function getAge(dateString) {
+            var today = new Date();
+            var birthDate = new Date(dateString);
+            var age = today.getFullYear() - birthDate.getFullYear();
+            var m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+    </script>
+
+
+<script>
+
+  var data;
+  var loginname;
+
+  var fun1 = (function(){ 
+    // console.log("Access");
+    $.ajax({
+        dataType:"json",
+        type:"get",
+        url:'add_customer.php',
+        data:{'cus_name':data[2], 'cus_family' : data[3], 'cus_gender' : data[4], 'age' : data[6], 'email' : data[7], 'location' : data[8],'facebook_id' : data[9]},
+        //data:{'cus_name':"Phuripat", 'cus_family' : "Akarasiriwong", 'cus_gender' : "Male", 'age' : "20", 'email' : "civvystreet1994@gmail.com", 'location' : "Thailand",'facebook_id' : "1234567"},
+        cache:true,
+        success: function(html){
+
+        }
+
+      });
+  }); 
+
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+      fun1();
+      setTimeout('Redirect();', 3000);   
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      //document.getElementById('status').innerHTML = 'Please log ' +
+        //'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      //.getElementById('status').innerHTML = 'Please log ' +
+        //'into Facebook.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+
+  }
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '142869452798048',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.2' // use version 2.2
+  });
+
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me?fields=name,first_name,last_name,email,gender,birthday,location', function(response) {
+      console.log('Successful login for: ' + response.name);
+
+      data = [response.name,response.id,response.first_name,response.last_name,response.gender,response.birthday,getAge(response.birthday),response.email,response.location.name,response.id];
+      loginname = response.name;
+      window.localStorage.setItem("id", loginname);
+
+      console.log('Successful login for: ' + data[0]);
+
+      // fun1();
+      /*
+      document.getElementById('status').innerHTML =
+        "<br/><br/><img src='" + "https://graph.facebook.com/" + response.id + "/picture?type=large' alt='' /><br/>" + 
+        '<br/>Thanks for logging in, ' + response.name + '!' + '<br/>' +
+        'First Name: ' + response.first_name + '<br/>' +
+        'Family Name: ' + response.last_name + '<br/>' +
+        'Gender: ' + response.gender + '<br/>' +
+        'Birthday: ' + response.birthday + '<br/>' +
+        'Age: ' + getAge(response.birthday) + '<br/>' +
+        'Email: ' + response.email + '<br/>' +
+        'Location: ' + response.location.name + '<br/>' +
+        'Facebook id: ' + response.id + "<br />" ;    */
+    });
+  }
+
+
+  function Redirect() 
+  {  
+	  window.location="input.php"; 
+  } 
+
+
+</script>
+
+
+    <div class="logmod">
+  <div class="logmod__wrapper">
+    
+    <div class="logmod__container">
+      <ul class="logmod__tabs">
+        <li data-tabtar="lgm-2"><a href="#">Login</a></li>
+        <li data-tabtar="lgm-1"><a href="#">Sign Up</a></li>
+      </ul>
+      <div class="logmod__tab-wrapper">
+      <div class="logmod__tab lgm-1">
+        <div class="logmod__heading">
+          <span class="logmod__heading-subtitle">Enter your personal details <strong>to create an acount</strong></span>
+        </div>
+        <div class="logmod__form">
+          <form accept-charset="utf-8" method="get" action="dbuser.php" class="simform">
+                <div class="sminputs">
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw">First name *</label>
+                      <input class="string optional" maxlength="255" name="user-fname"  id="user-fname" placeholder="First name" type="text" size="50" />
+                    </div>
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw-repeat">Last name *</label>
+                      <input class="string optional" maxlength="255" id="user-lname" name="user-lname" placeholder="Last name" type="text" size="50" />
+                    </div>
+                  </div>
+                  <div class="sminputs">
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw">Birthday *</label>
+                      <input class="string optional" maxlength="255" id="user-bd" name="user-bd" placeholder="yyyy-mm-dd" type="text" size="50" />
+                    </div>
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw-repeat">Gender *</label>
+                      <input class="string optional" maxlength="255" id="user-gender" name="user-gender" placeholder="male or female" type="text" size="50" />
+                    </div>
+                  </div>
+                  <div class="sminputs">
+                    <div class="input full">
+                      <label class="string optional" for="user-name">Location *</label>
+                      <input class="string optional" maxlength="255" id="user-location" name="user-location" placeholder="Location" type="text" size="50" />
+                    </div>
+                  </div>
+                  <div class="sminputs">
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw">Email *</label>
+                      <input class="string optional" maxlength="255" name="user-email" id="user-email" placeholder="Email" type="email" size="50" />
+                    </div>
+                    <div class="input string optional">
+                      <label class="string optional" for="user-pw-repeat">Password *</label>
+                      <input class="string optional" maxlength="255" id="user-pw" name="user-pw" placeholder="Password" type="text" size="50" />
+                    </div>
+                  </div>
+                  <div class="simform__actions">
+                    <!--  <input class="sumbit" name="commit" type="sumbit" value="Create Account" />  -->
+                    <input type="submit" value="Create Account" class="sumbit">
+                    <span class="simform__actions-sidetext">By creating an account you agree to our <a class="special" href="#" target="_blank" role="link">Terms & Privacy</a></span>
+                  </div> 
+          </form>
+        </div> 
+        <div class="logmod__alter">
+          <div class="logmod__alter-container">
+            <a href="http://facebook.com/" class="connect facebook">
+              <div class="connect__icon">
+                <i class="fa fa-facebook"></i>
+              </div>
+              <div class="connect__context">
+                <span>Create an account with <strong>Facebook</strong></span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+      <div class="logmod__tab lgm-2">
+        <div class="logmod__heading">
+          <span class="logmod__heading-subtitle">Enter your email and password <strong>to sign in</strong></span>
+        </div> 
+        <div class="logmod__form">
+          <form accept-charset="utf-8" method="get" action="dblogin.php" class="simform">
+            <div class="sminputs">
+              <div class="input full">
+                <label class="string optional" for="user-name">Email*</label>
+                <input class="string optional" maxlength="255" id="login-email" name="login-email" placeholder="Email" type="email" size="50" />
+              </div>
+            </div>
+            <div class="sminputs">
+              <div class="input full">
+                <label class="string optional" for="user-pw">Password *</label>
+                <input class="string optional" maxlength="255" id="login-pw" name="login-pw" placeholder="Password" type="password" size="50" />
+                						<span class="hide-password">Show</span>
+              </div>
+            </div>
+            <div class="simform__actions">
+              <!--   <input class="sumbit" name="commit" type="sumbit" value="Log In" />  -->
+              <input type="submit" value="Log In" class="sumbit">
+              <span class="simform__actions-sidetext"><a class="special" role="link" href="#">Forgot your password?<br>Click here</a></span>
+            </div> 
+          </form>
+        </div> 
+        <div class="logmod__alter">
+          <div class="logmod__alter-container">
+            <a class="connect facebook">
+              <div class="connect__icon">
+                <i class="fa fa-facebook"></i>
+              </div>
+              <div class="connect__context" >
+                 If you don't want to create account - "Sign in with Facebook"
+              </div>
+            </a>
+            <a class="connect facebook" style="height:92px;">
+            <div style="width:100px;background:white">
+              </div>
+              <div class="connect__context" style="height:0px;width:100%;background:white">
+                <span><fb:login-button size="xlarge" scope="public_profile,email" onlogin="checkLoginState();" >connect to facebook
+                  </fb:login-button></span>
+              </div>
+              <div>
+              </div>
+            </a>
+          </div>
+        </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="status">
+</div>
+
+
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src="js/index1.js"></script>
+
+  
+  </body>
+</html>

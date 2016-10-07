@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<title>Augmented Reality in Browser</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+		<link rel='stylesheet' id='camera-css'  href='css/camera.css' type='text/css' media='all'>
+
+		<link rel="stylesheet" type="text/css" href="css/slicknav.css">
+		<link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		
+		
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700|Open+Sans:700' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="js/jquery.mobile.customized.min.js"></script>
+		<script type="text/javascript" src="js/jquery.easing.1.3.js"></script> 
+		<script type="text/javascript" src="js/camera.min.js"></script>
+		<script type="text/javascript" src="js/myscript.js"></script>
+		<script src="js/sorting.js" type="text/javascript"></script>
+		<script src="js/jquery.isotope.js" type="text/javascript"></script>
+		<!--script type="text/javascript" src="js/jquery.nav.js"></script-->
+		
+		<!--<script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>  -->
+	    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>  -->
+	    <script src="store-locator.min.js"></script>
+	    <!--<script src="places.js"></script>-->
+		
+		
+		
+		<!-- Script of Eddystone scan to search frequency -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no,
+		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+		<!--
+		<style>
+		@import 'ui/css/evothings-app.css';
+		</style>-->
+
+		<script>
+		// Redirect console.log to Evothings Workbench.
+		if (window.hyper && window.hyper.log) { console.log = hyper.log }
+		</script>
+
+		<script src="cordova.js"></script>
+		<!-- <script src="libs/jquery/jquery.js"></script> -->
+		<script src="libs/evothings/evothings.js"></script>
+		<script src="libs/evothings/ui/ui.js"></script>
+		<script src="libs/evothings/eddystone/eddystone.js"></script>
+		<script src="app.js"></script>
+		<!-- End of declaration of Eddystone scan to search frequency -->
+		
+		
+
+
+		<!-- Script for Google APIs support  -->
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=places"></script>
+		<script type="text/javascript" src="geometa.js"></script>
+
+		<script type="text/javascript">
+
+  
+  var map, places, iw;
+  var markers = [];
+  var autocomplete;
+  var types = ["attraction", "business", "government", "medical", "park", "place_of_worship", "school", "sports_complex"];
+  var input, results;
+  var timeout;
+  var colors = ['#0042CE', '#BF0404', '#F2BB16', '#0034AA', '#32A62E', '#BF0404'];
+  
+  function initialize() {
+    var myLatlng = new google.maps.LatLng(37.783259, -122.402708);
+    var myOptions = {
+      zoom: 12,
+      center: myLatlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+    prepareGeolocation();
+    doGeolocation();
+    places = new google.maps.places.PlacesService(map);
+    google.maps.event.addListener(map, 'tilesloaded', tilesLoaded);
+    autocomplete = new google.maps.places.Autocomplete(document.getElementById('autocomplete'));
+    google.maps.event.addListener(autocomplete, 'place_changed', function() {
+      showSelectedPlace();
+    });
+  }
+  
+  function tilesLoaded() {
+    google.maps.event.clearListeners(map, 'tilesloaded');
+    google.maps.event.addListener(map, 'zoom_changed', search);
+    google.maps.event.addListener(map, 'dragend', search);
+    search();
+  }
+  
+  function showSelectedPlace() {
+    clearResults();
+    clearMarkers();
+    var place = autocomplete.getPlace();
+    map.panTo(place.geometry.location);
+    markers[0] = new google.maps.Marker({
+      position: place.geometry.location,
+      map: map
+    });
+    iw = new google.maps.InfoWindow({
+      content: getIWContent(place)
+    });
+    iw.open(map, markers[0]);
+  }
+  
+  function search() {
+    var type;
+    for (var i = 0; i < document.controls.type.length; i++) {
+      if (document.controls.type[i].checked) {
+        type = document.controls.type[i].value;
+      }
+    }
+    
+    autocomplete.setBounds(map.getBounds());
+    
+    var search = {
+      bounds: map.getBounds()
+    };
+    
+    if (type != 'establishment') {
+      search.types = [ type ];
+    }
+    
+    places.search(search, function(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        clearResults();
+        clearMarkers();
+        for (var i = 0; i < results.length; i++) {
+          markers[i] = new google.maps.Marker({
+            position: results[i].geometry.location,
+            animation: google.maps.Animation.DROP
+          });
+          google.maps.event.addListener(markers[i], 'click', getDetails(results[i], i));
+          setTimeout(dropMarker(i), i * 100);
+          addResult(results[i], i);
+        }
+      }
+    })
+  }
+  
+  function clearMarkers() {
+    for (var i = 0; i < markers.length; i++) {
+      if (markers[i]) {
+        markers[i].setMap(null);
+        markers[i] == null;
+      }
+    }
+  }
+  
+  function dropMarker(i) {
+    return function() {
+      markers[i].setMap(map);
+    }
+  }
+  
+  function addResult(result, i) {
+    var results = document.getElementById("results");
+    var tr = document.createElement('tr');
+    tr.style.backgroundColor = (i% 2 == 0 ? '#F0F0F0' : '#FFFFFF');
+    tr.onclick = function() {
+      google.maps.event.trigger(markers[i], 'click');
+    };
+    
+    var iconTd = document.createElement('td');
+    var nameTd = document.createElement('td');
+    var icon = document.createElement('img');
+    icon.src = result.icon;
+    icon.setAttribute("class", "placeIcon");
+    icon.setAttribute("className", "placeIcon");
+    var name = document.createTextNode(result.name);
+    iconTd.appendChild(icon);
+    nameTd.appendChild(name);
+    tr.appendChild(iconTd);
+    tr.appendChild(nameTd);
+    results.appendChild(tr);
+  }
+  
+  function clearResults() {
+    var results = document.getElementById("results");
+    while (results.childNodes[0]) {
+      results.removeChild(results.childNodes[0]);
+    }
+  }
+  
+  function getDetails(result, i) {
+    return function() {
+      places.getDetails({
+          reference: result.reference
+      }, showInfoWindow(i));
+    }
+  }
+  
+  function showInfoWindow(i) {
+    return function(place, status) {
+      if (iw) {
+        iw.close();
+        iw = null;
+      }
+      
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        iw = new google.maps.InfoWindow({
+          content: getIWContent(place)
+        });
+        iw.open(map, markers[i]);        
+      }
+    }
+  }
+  
+  function getIWContent(place) {
+    var content = "";
+    content += '<table><tr><td>';
+    content += '<img class="placeIcon" src="' + place.icon + '"/></td>';
+    content += '<td><b><a href="' + place.url + '">' + place.name + '</a></b>';
+    content += '</td></tr></table>';
+    return content;
+  }
+
+
+
+  // Declaration for serching by types of place e.g. "attraction", "business", "government", "medical", "park", "place_of_worship", "school", "sports_complex"
+  function updateMap() {
+    map.setOptions({'styles': getStyles() });
+  }
+  
+  function getStyles() {
+    var styles = [];
+    for (var i=0; i < types.length; i++) {
+      var style = {};
+      var type = types[i];
+      var enabled = document.getElementById(type).checked;
+      style['featureType'] = 'poi.' + type;
+      style['elementType'] = 'labels';
+      style['stylers'] = [{'visibility' : (enabled ? 'on' : 'off') }];
+      styles.push(style);
+    }
+    return styles;
+  }
+
+
+  // Declaration for geting geolocation 
+  function doGeolocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(positionSuccess, positionError);
+    } else {
+      positionError(-1);
+    }
+  }
+
+  function positionError(err) {
+    var msg;
+    switch(err.code) {
+      case err.UNKNOWN_ERROR:
+        msg = "Unable to find your location";
+        break;
+      case err.PERMISSION_DENINED:
+        msg = "Permission denied in finding your location";
+        break;
+      case err.POSITION_UNAVAILABLE:
+        msg = "Your location is currently unknown";
+        break;
+      case err.BREAK:
+        msg = "Attempt to find location took too long";
+        break;
+      default:
+        msg = "Location detection not supported in browser";
+    }
+    document.getElementById('info').innerHTML = msg;
+  }
+
+  function positionSuccess(position) {
+    // Centre the map on the new location
+    var coords = position.coords || position.coordinate || position;
+    var latLng = new google.maps.LatLng(coords.latitude, coords.longitude);
+    map.setCenter(latLng);
+    map.setZoom(12);
+    var marker = new google.maps.Marker({
+      map: map,
+      position: latLng,
+      title: 'Why, there you are!'
+    });
+    document.getElementById('info').innerHTML = 'Looking for <b>' +
+        coords.latitude + ', ' + coords.longitude + '</b>...';
+
+    // And reverse geocode.
+    (new google.maps.Geocoder()).geocode({latLng: latLng}, function(resp) {
+      var place = "You're around here somewhere!";
+      if (resp[0]) {
+        var bits = [];
+        for (var i = 0, I = resp[0].address_components.length; i < I; ++i) {
+          var component = resp[0].address_components[i];
+          if (contains(component.types, 'political')) {
+            bits.push('<b>' + component.long_name + '</b>');
+          }
+        }
+        if (bits.length) {
+          place = bits.join(' > ');
+        }
+        marker.setTitle(resp[0].formatted_address);
+      }
+      document.getElementById('info').innerHTML = place;
+    });
+  }
+
+  function contains(array, item) {
+    for (var i = 0, I = array.length; i < I; ++i) {
+      if (array[i] == item) return true;
+    }
+    return false;
+  }
+
+
+</script>
+		<!-- End of Script for Google APIs support  -->
+
+
+
+<script>
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-12846745-20']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+
+
+<style>
+body {
+  font-family: sans-serif;
+}
+#map_canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50px;
+  left: 0px;
+  
+
+  /* Display Google Map as a gray scale*/
+  /*filter: gray; /* IE6-9 */
+  /*-webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  /* -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  filter: grayscale(100%);  */
+}
+#listing {
+  position: absolute;
+  width: 600px;
+  height: 360px;
+  overflow: auto;
+  left: 800px;
+  top: 500px;
+  cursor: pointer;
+}
+#controls {
+  width: 200px;
+  position: absolute;
+  top: 500px;
+  left: 400px;
+  height: 60px;
+  padding: 5px;
+  font-size: 12px;
+}
+.placeIcon {
+  width: 16px;
+  height: 16px;
+  margin: 2px;
+  top:20;
+}
+#resultsTable {
+  font-size: 10px;
+  border-collapse: collapse;
+}
+#locationField {
+  width: 400px;
+  height: 25px;
+  top: 20px;
+  left: 0px;
+  position: absolute;
+}
+#autocomplete {
+  width: 400px;
+}
+div#info { width:100%; position:absolute; overflow:hidden; text-align:center; top:0;
+    left:0; }
+
+</style>
+
+
+
+		<script>
+			jQuery(function(){
+					jQuery('#camera_wrap_1').camera({
+					transPeriod: 500,
+					time: 3000,
+					height: '490px',
+					thumbnails: false,
+					pagination: true,
+					playPause: false,
+					loader: false,
+					navigation: false,
+					hover: false
+				});
+			});
+		</script>
+		
+	</head>
+	<body onload="initialize()">
+    
+    <!--home start-->
+    
+    <div id="home">
+    	<div class="headerLine">
+	<div id="menuF" class="default">
+		<div class="container">
+			<div class="row">
+				<div class="logo col-md-4">
+					<div>
+						<a href="#">
+							<img src="images/logo.png">
+						</a>
+					</div>
+				</div>
+				<div class="col-md-8">
+					<div class="navmenu"style="text-align: center;">
+						<ul id="menu">
+							<li class="active" ><a href="#home">Home</a></li>
+							<li><a href="#about">About</a></li>
+							<li><a href="#project">Suggest places</a></li>
+							<li><a href="#news">Recents</a></li>
+							<li class="last"><a href="#contact">Contact</a></li>
+							<!--li><a href="#features">Features</a></li-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		<div class="container">
+			<div class="row wrap">
+				<div class="col-md-12 gallery"> 
+						<div class="camera_wrap camera_white_skin" id="camera_wrap_1">
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Connect<p><font color ="#29abe2">E</font>ddystone</p></h2>
+								</div>
+							</div>
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Enable<p><font color ="#bdccd4">A</font><font color ="#f93838">R</font> web</p></h2>
+								</div>
+							</div>
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Link<p><font color ="#8b9dc3">Social</font></p></h2>
+								</div>
+							</div>
+						</div><!-- #camera_wrap_1 -->
+				</div>
+			</div>
+		</div>
+	</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4 project">
+					<h3 id="counter">0</h3>
+					<h4>Places</h4>
+					<p>The number of places in our data</p>
+				</div>
+				<div class="col-md-4 project">
+					<h3 id="counter1">0</h3>
+					<h4>Visited</h4>
+					<p>Visited times for all places</p>
+				</div>
+				<div class="col-md-4 project">
+					<h3 id="counter2" style="margin-left: 20px;">0</h3>
+					<h4 style="margin-left: 20px;">Currently online</h4>
+					<p>Number of users currently</p>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 cBusiness">
+					<h3>An alternative way to promote your places - With iBeacons and EddvisAR</h3>
+					<h4>Be it attraction spots, shops or event booths with EdvisAR you could promote it regardless of the places</h4>
+          <h4>Incase you need to move, just take iBeacons and it's done !</h4>
+
+
+					
+					<!-- <h1>Eddystone Scan</h1>  -->
+					<p id="message"> <!-- Please move within range of Eddystone beacons.  --></p>
+					<ul id="found-beacons" class="dynamic"></ul>
+					
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 centPic">
+					<img class="img-responsive"  src="images/bizPic.png"/>
+				</div>
+			</div>
+		</div>   
+    </div>
+    
+    <!--about start-->    
+    
+    <div id="about">
+    	<div class="line2">
+			<div class="container">
+				<div class="row Fresh">
+					<div class="col-md-4 Des">
+						<i class="fa fa-camera"></i>
+						<h4>Real Location with AR</h4>
+						<p>EdvisAR provided location based AR for many interesting places, which has informations and guides provided.</p>
+					</div>
+					<div class="col-md-4 Ver">
+						<i class="fa fa-map-marker"></i>
+						<h4>Google maps with location</h4>
+						<p>The places will be mark on Google maps which could be searched on EdvisAR</p>
+					</div>
+					<div class="col-md-4 Fully">
+						<i class="fa fa-facebook-square"></i>
+						<h4>Fast Connect to Social Network</h4>
+						<p>Provide an easy way to quickly post your moment in the Facebook.</p>
+					</div>		
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 wwa">
+					<span name="about" ></span>
+					<h3>How to use EdvisAR ? Just follow these instructions!</h3>
+					<h4>Simple right ?</h4>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row team">
+				<div class="col-md-4 b1">
+						<img class="img-responsive" src="images/picTeam/physicalweb.png">
+						<h4>Connect to Physical Web</h4>
+						<h5>Connect</h5>
+						<p>By using the eddystone here(make link here later), <br/> for android 6.0+ you can enable your physical web function <br/> or any application to find beacons.</p>
+			
+				</div>
+			
+			
+				<div class="col-md-4">
+						<img class="img-responsive" src="images/picTeam/permission.png">
+						<h4>Enable Location and Camera</h4>
+						<h5>Request Permissions</h5>
+						<p>EddvisAR will uses your current location and camera<br/> make sure to allow it.</p>
+	
+				</div>
+		
+			
+				<div class="col-md-4 b3">
+						<img class="img-responsive" src="images/picTeam/smile.png">
+						<h4>Enjoy!</h4>
+						<h5>EddvisAR is now running!</h5>
+						<p>Enjoy with the application and your interested information.</p>
+			
+				</div>
+			</div>
+		</div>
+  <!-- End of Instructions  -->
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12 wwa">
+					<hr/>
+            <h3>Top 8 Visited places</h3>
+				</div>
+			</div>
+		</div>		
+
+		<div class="container">
+			<div class="row">
+				<div class="col-md-3 bar">
+					<div class="textP">
+						<h3>First Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/snow2.jpg"/>
+						<p>Kyoto<br/></p>
+					</div>
+				</div>
+
+				<div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Second Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/potala.jpg"/>
+            <p>Potala<br/></p>
+          </div>
+        </div>
+
+				<div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Third Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/snow7.jpg"/>
+            <p>Snow city<br/></p>
+          </div>
+        </div>
+
+
+				<div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Fourth Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/santorini.jpg"/>
+            <p>Santorini<br/></p>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Fifth Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/bali.jpg"/>
+            <p>Bali<br/></p>
+          </div>
+        </div>
+
+        <div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Sixth Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/snow3.jpg"/>
+            <p>Hokkaido<br/></p>
+          </div>
+        </div>
+    
+
+        <div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Seventh Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/vatican.jpg"/>
+            <p>Vatican<br/></p>
+          </div>
+        </div>
+
+        <div class="col-md-3 bar">
+          <div class="textP">
+            <h3>Eigth Rank</h3>
+              <img class="img-responsive " src="images/prettyPhotoImages/soumaya.jpg"/>
+            <p>Soumaya<br/></p>
+          </div>
+        </div>
+
+
+			</div>
+		</div>	
+		
+		
+
+    <!--project start-->    
+    <div id="project">    	
+		<div class="line3">
+			<div class="container">
+				<div id="project1" ></div>
+				<div class="row Ama">
+					<div class="logo col-md-12">
+					<span name="projects" id="projectss"></span>
+					<h3><a href="beaches.html">THE WORLD'S BEST</a></h3>
+					<p>Trips, Adventures, and places to visit</p>
+					</div>
+				</div>
+			</div>
+		</div>    
+    </div>      
+    
+    
+       
+				<!-- end of animation --> 
+
+			
+			
+    
+
+    
+    
+    <!--contact start-->
+    
+    <div id="contact">
+    	<div class="line5">					
+			<div class="container">
+				<div class="row Ama">
+					<div class="col-md-12">
+					<h3>Got a Question? We&rsquo;re Here to Help!</h3>
+					<p>Get in touch with us</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9 col-xs-12 forma">
+					<form>
+						<input type="text" class="col-md-6 col-xs-12 name" name='name' placeholder='Name *'/>
+						<input type="text" class="col-md-6 col-xs-12 Email" name='Email' placeholder='Email *'/>
+						<input type="text" class="col-md-12 col-xs-12 Subject" name='Subject' placeholder='Subject'/>
+						<textarea type="text" class="col-md-12 col-xs-12 Message" name='Message' placeholder='Message *'></textarea>
+						<div class="cBtn col-xs-12">
+							<ul>
+								<li class="clear"><a href="#"><i class="fa fa-times"></i>clear form</a></li>
+								<li class="send"><a href="#"><i class="fa fa-share"></i>Send Message</a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+				<div class="col-md-3 col-xs-12 cont">
+					<ul>
+						<li><i class="fa fa-home"></i>5512 Lorem Ipsum Vestibulum 666/13</li>
+						<li><i class="fa fa-phone"></i>+1 800 789 50 12, +1 800 450 6935</li>
+						<li><a href="#"><i class="fa fa-envelope"></i>mail@compname.com</li></a>
+						<li><i class="fa fa-skype"></i>compname</li>
+						<li><a href="#"><i class="fa fa-twitter"></i>Twitter</li></a>
+						<li><a href="#"><i class="fa fa-facebook-square"></i>Facebook</li></a>
+						<li><a href="#"><i class="fa fa-dribbble"></i>Dribbble</li></a>
+						<li><a href="#"><i class="fa fa-flickr"></i>Flickr</li></a>
+						<li><a href="#"><i class="fa fa-youtube-play"></i>YouTube</li></a>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+
+
+		<!--  Google Map API -->
+		 <div class="line6">
+					<iframe src="https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d48386.401887313725!2d-73.9407136!3d40.7147117!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sru!2sua!4v1402409149092" width="100%" height="750" frameborder="0" style="border:0"></iframe>			
+		</div>
+		<div class="container">
+			<div class="row ftext">
+				<div class="col-md-12">
+				<a id="features"></a>
+				<h3>We Care About Our Clients and Can Make Their Life Easier!</h3>
+				<p>The main peculiarity of template is the striking presentation when visitors just need to use the scrolling option to find all necessary information about your web project. </p>
+				</div>
+				<div class="cBtn">
+					<ul style="margin-top: 23px; margin-bottom: 0px; padding-left: 26px;">
+						<li class="dowbload"><a href="#"><i class="fa fa-star"></i>View All Features</a></li>
+						<li class="buy"><a href="#"><i class="fa fa-download"></i>Buy This Template</a></li>
+					</ul>
+			</div>
+			</div>
+		</div>
+<!--	
+<div id="info" class="lightbox">Detecting your location...</div>
+  <div id="locationField">
+    <input id="autocomplete" type="text" />
+  </div>
+  <div id="controls">
+    <form name="controls">
+    <input type="radio" name="type" value="establishment" onclick="search()" checked="checked"/>All<br/>
+    <input type="radio" name="type" value="attraction" onclick="search()" />Attraction<br/>
+    <input type="radio" name="type" value="restaurant" onclick="search()" />Restaurants<br/>
+    <input type="radio" name="type" value="lodging" onclick="search()" />Lodging<br/>
+    <input type="radio" name="type" value="business" onclick="search()" />Business<br/>
+    <input type="radio" name="type" value="government" onclick="search()" />Government<br/>
+    <input type="radio" name="type" value="medical" onclick="search()" />Medical<br/>
+    <input type="radio" name="type" value="museum" onclick="search()" />Museum<br/>
+    <input type="radio" name="type" value="park" onclick="search()" />Park<br/>
+    <input type="radio" name="type" value="place_of_worship" onclick="search()" />Place_of_worship<br/>
+    <input type="radio" name="type" value="airport" onclick="search()" />Airport<br/>
+    <input type="radio" name="type" value="school" onclick="search()" />School<br/>
+    <input type="radio" name="type" value="convenience_store" onclick="search()" />Convenience store<br/>
+    <input type="radio" name="type" value="shopping_mall" onclick="search()" />Shopping mall
+    </form>
+  </div>
+  <div id="map_canvas"></div>
+  <div id="listing"><table id="resultsTable"><tbody id="results"></tbody></table></div>
+
+</div>
+</div>
+-->
+
+    
+<!--
+    <div class="line6">
+          <div id="map_canvas"></div>
+          <div id="listing"><table id="resultsTable"><tbody id="results"></tbody></table></div>    
+    </div>
+    <div class="container">
+      <div class="row ftext">
+        <div class="col-md-12">
+        <a id="features"></a>
+        <h3>We Care About Our Clients and Can Make Their Life Easier!</h3>
+        <p>The main peculiarity of template is the striking presentation when visitors just need to use the scrolling option to find all necessary information about your web project. </p>
+        </div>
+        <div class="cBtn">
+          <ul style="margin-top: 23px; margin-bottom: 0px; padding-left: 26px;">
+            <li class="dowbload"><a href="#"><i class="fa fa-star"></i>View All Features</a></li>
+            <li class="buy"><a href="#"><i class="fa fa-download"></i>Buy This Template</a></li>
+          </ul>
+      </div>
+      </div>
+    </div>
+
+
+
+    <div id="info" class="lightbox">Detecting your location...</div>
+  <div id="locationField">
+    <input id="autocomplete" type="text" />
+  </div>
+  <div id="controls">
+    <form name="controls">
+    <input type="radio" name="type" value="establishment" onclick="search()" checked="checked"/>All<br/>
+    <input type="radio" name="type" value="attraction" onclick="search()" />Attraction<br/>
+    <input type="radio" name="type" value="restaurant" onclick="search()" />Restaurants<br/>
+    <input type="radio" name="type" value="lodging" onclick="search()" />Lodging<br/>
+    <input type="radio" name="type" value="business" onclick="search()" />Business<br/>
+    <input type="radio" name="type" value="government" onclick="search()" />Government<br/>
+    <input type="radio" name="type" value="medical" onclick="search()" />Medical<br/>
+    <input type="radio" name="type" value="museum" onclick="search()" />Museum<br/>
+    <input type="radio" name="type" value="park" onclick="search()" />Park<br/>
+    <input type="radio" name="type" value="place_of_worship" onclick="search()" />Place_of_worship<br/>
+    <input type="radio" name="type" value="airport" onclick="search()" />Airport<br/>
+    <input type="radio" name="type" value="school" onclick="search()" />School<br/>
+    <input type="radio" name="type" value="convenience_store" onclick="search()" />Convenience store<br/>
+    <input type="radio" name="type" value="shopping_mall" onclick="search()" />Shopping mall
+    </form>
+  </div>
+
+  -->
+         
+          
+		</div>
+		<div class="line7">
+			<div class="container">
+				<div class="row footer">
+					<div class="col-md-12">
+						<h3>Subscribe for Our Newsletter!</h3>
+						<p>Subscribe to our newsletter email to get notification about fresh news, latest promos, giveaways and free stuff from Skew. Stay always up-to-date!</p>
+						<div class="fr">
+						<div style="display: inline-block;">
+							<input class="col-md-6 fEmail" name='Email' placeholder='Enter Your Email'/>
+							<a href="#" class="subS">Subscribe!</a>
+						</div>
+						</div>
+					</div>
+					<div class="soc col-md-12">
+						<ul>
+							<li class="soc1"><a href="#"></a></li>
+							<li class="soc2"><a href="#"></a></li>
+							<li class="soc3"><a href="#"></a></li>
+							<li class="soc4"><a href="#"></a></li>
+							<li class="soc5"><a href="#"></a></li>
+							<li class="soc6"><a href="#"></a></li>
+							<li class="soc7"><a href="#"></a></li>
+							<li class="soc8"><a href="#"></a></li>
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="lineBlack">
+			<div class="container">
+				<div class="row downLine">
+					<div class="col-md-12 text-right">
+						<!--input  id="searchPattern" type="search" name="pattern" value="Search the Site" onblur="if(this.value=='') {this.value='Search the Site'; }" onfocus="if(this.value =='Search the Site' ) this.value='';this.style.fontStyle='normal';" style="font-style: normal;"/-->
+						<input  id="searchPattern" type="search" placeholder="Search the Site"/><i class="glyphicon glyphicon-search" style="font-size: 13px; color:#a5a5a5;" id="iS"></i>
+					</div>
+					<div class="col-md-6 text-left copy">
+						<p>Copyright &copy; 2016.</p>
+					</div>
+					<div class="col-md-6 text-right dm">
+						<ul id="downMenu">
+							<li class="active"><a href="#home">Home</a></li>
+							<li><a href="#about">About</a></li>
+							<li><a href="#project1">Projects</a></li>
+							<li><a href="#news">News</a></li>
+							<li class="last"><a href="#contact">Contact</a></li>
+							<!--li><a href="#features">Features</a></li-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>		
+		
+		
+	<script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.slicknav.js"></script>
+	<script>
+			$(document).ready(function(){
+			$(".bhide").click(function(){
+				$(".hideObj").slideDown();
+				$(this).hide(); //.attr()
+				return false;
+			});
+			$(".bhide2").click(function(){
+				$(".container.hideObj2").slideDown();
+				$(this).hide(); // .attr()
+				return false;
+			});
+				
+			$('.heart').mouseover(function(){
+					$(this).find('i').removeClass('fa-heart-o').addClass('fa-heart');
+				}).mouseout(function(){
+					$(this).find('i').removeClass('fa-heart').addClass('fa-heart-o');
+				});
+				
+				function sdf_FTS(_number,_decimal,_separator)
+				{
+				var decimal=(typeof(_decimal)!='undefined')?_decimal:2;
+				var separator=(typeof(_separator)!='undefined')?_separator:'';
+				var r=parseFloat(_number)
+				var exp10=Math.pow(10,decimal);
+				r=Math.round(r*exp10)/exp10;
+				rr=Number(r).toFixed(decimal).toString().split('.');
+				b=rr[0].replace(/(\d{1,3}(?=(\d{3})+(?:\.\d|\b)))/g,"\$1"+separator);
+				r=(rr[1]?b+'.'+rr[1]:b);
+
+				return r;
+}
+				
+			setTimeout(function(){
+					$('#counter').text('0');
+					$('#counter1').text('0');
+					$('#counter2').text('0');
+					setInterval(function(){
+						
+						var curval=parseInt($('#counter').text());
+						var curval1=parseInt($('#counter1').text().replace(' ',''));
+						var curval2=parseInt($('#counter2').text());
+						if(curval<=707){
+							$('#counter').text(curval+1);
+						}
+						if(curval1<=12280){
+							$('#counter1').text(sdf_FTS((curval1+20),0,' '));
+						}
+						if(curval2<=245){
+							$('#counter2').text(curval2+1);
+						}
+					}, 2);
+					
+				}, 500);
+			});
+	</script>
+	<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery('#menu').slicknav();
+		
+	});
+	</script>
+	
+	<script type="text/javascript">
+    $(document).ready(function(){
+       
+        var $menu = $("#menuF");
+            
+        $(window).scroll(function(){
+            if ( $(this).scrollTop() > 100 && $menu.hasClass("default") ){
+                $menu.fadeOut('fast',function(){
+                    $(this).removeClass("default")
+                           .addClass("fixed transbg")
+                           .fadeIn('fast');
+                });
+            } else if($(this).scrollTop() <= 100 && $menu.hasClass("fixed")) {
+                $menu.fadeOut('fast',function(){
+                    $(this).removeClass("fixed transbg")
+                           .addClass("default")
+                           .fadeIn('fast');
+                });
+            }
+        });
+	});
+    //jQuery
+	</script>
+	<script>
+		/*menu*/
+		function calculateScroll() {
+			var contentTop      =   [];
+			var contentBottom   =   [];
+			var winTop      =   $(window).scrollTop();
+			var rangeTop    =   200;
+			var rangeBottom =   500;
+			$('.navmenu').find('a').each(function(){
+				contentTop.push( $( $(this).attr('href') ).offset().top );
+				contentBottom.push( $( $(this).attr('href') ).offset().top + $( $(this).attr('href') ).height() );
+			})
+			$.each( contentTop, function(i){
+				if ( winTop > contentTop[i] - rangeTop && winTop < contentBottom[i] - rangeBottom ){
+					$('.navmenu li')
+					.removeClass('active')
+					.eq(i).addClass('active');				
+				}
+			})
+		};
+		
+		$(document).ready(function(){
+			calculateScroll();
+			$(window).scroll(function(event) {
+				calculateScroll();
+			});
+			$('.navmenu ul li a').click(function() {  
+				$('html, body').animate({scrollTop: $(this.hash).offset().top - 80}, 800);
+				return false;
+			});
+		});		
+	</script>	
+	<script type="text/javascript" charset="utf-8">
+
+		jQuery(document).ready(function(){
+			jQuery(".pretty a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: true, social_tools: ''});
+			
+		});
+	</script>
+	</body>
+	
+</html>

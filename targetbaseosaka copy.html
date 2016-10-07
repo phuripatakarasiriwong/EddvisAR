@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EddvisAR - Augmented Reality within Web Browser Technology</title>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<meta charset="utf-8"/>
+<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+#container {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="js/awe-loader-min.js"></script>
+<script type="text/javascript">
+  window.addEventListener('load', function() {
+    window.awe.init({
+      device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+      settings: {
+      	container_id: 'container',
+        default_camera_position: { x:0, y:0, z:0 },
+        default_lights:[
+          {
+            id: 'point_light',
+            type: 'point',
+            color: 0xFFFFFF,
+          },
+        ],
+      },
+      ready: function() {
+        awe.util.require([
+          {
+            capabilities: ['gum','webgl'],
+            files: [ 
+              [ 'js/awe-standard-dependencies.js', 'js/awe-standard.js'],
+              'js/awe-jsartoolkit-dependencies.js','js/awe-standard-object_clicked.js',
+              'js/awe.marker_ar.js',
+            ],
+            success: function() { 
+					awe.setup_scene();
+
+
+				    // setup and paint the scene
+			        window.awe.setup_scene();
+             		// setup some code to handle when an object is clicked/tapped
+              		window.addEventListener('object_clicked', function(e) 
+              		{ 
+                
+                 		// window.location="targettest.html";
+                  
+                  
+                 		var id = e.detail.projection_id;
+
+                 		if(id == "projection_1")
+                 		{
+                 			window.location="targettest.html";
+                 		}
+                 		else if(id == "projection_2")
+                 		{
+                 			window.location="targettest.html";
+                 		}
+                 		else if(id == "projection_3")
+                 		{
+                 			window.location="targettest.html";
+                 		}
+                 		else if(id == "projection_4")
+                 		{
+                 			window.location="login.html";
+                 		}
+                 		else if(id == "projection_5")
+                 		{
+                 			window.location="https://en.wikipedia.org/wiki/Osaka";
+                 		}
+                 		else if(id == "projection_6")
+                 		{
+                 			window.location="https://www.youtube.com/watch?v=F9To5UjWhUA";
+                 		}   
+                 		else
+                 		{
+                 			window.location="targettest.html";
+                 		}
+
+                 		//id of object  //e.detail.projection_id;
+              		}, false);
+  
+
+			        awe.pois.add({ id:'poi_3', position: { x:0, y:0, z:10000 }, visible: false });
+
+			        awe.pois.add({ id:'poi_4', position: { x:0, y:0, z:10000 }, visible: false });
+
+			        awe.pois.add({ id:'poi_5', position: { x:0, y:0, z:10000 }, visible: false });
+
+			        awe.pois.add({ id:'poi_6', position: { x:0, y:0, z:10000 }, visible: false });
+			        
+			        
+
+			        awe.projections.add({ 
+			          	id:'projection_3', 
+						geometry: { shape: 'cube', x:120, y:120, z:120 },
+						position: {x: 0, y: 0, z: 0},
+			          	material:{ type: 'phong', color: 0xFFFFFF }, 
+                		texture: { path: 'osaka.jpg' },
+			        }, { poi_id: 'poi_3' });
+
+			        awe.projections.add({ 
+			          id:'projection_4', 
+					  //geometry: { shape: 'cube', x:120, y:120, z:120 },
+					  geometry:{shape: 'plane', height: 50, width: 100, widthSegments: 1, heightSegments: 1},
+					  position: {x: 150, y: -55, z: 0},
+					  rotation:{ x:0, y:0, z:0 },
+			          material:{ type: 'phong', color: 0xFFFFFF }, 
+                		texture: { path: '3.jpg' },
+			        }, { poi_id: 'poi_4' });
+
+			        awe.projections.add({ 
+			          id:'projection_5', 
+					  //geometry: { shape: 'cube', x:120, y:120, z:120 },
+					  geometry:{shape: 'plane', height: 50, width: 100, widthSegments: 1, heightSegments: 1},
+					  position: {x: 150, y: 0, z: 0},
+					  rotation:{ x:0, y:0, z:0 },
+			          material:{ type: 'phong', color: 0xFFFFFF }, 
+                		texture: { path: '2.jpg' },
+			        }, { poi_id: 'poi_5' });
+
+			        awe.projections.add({ 
+			          	id:'projection_6', 
+						geometry:{shape: 'plane', height: 50, width: 100, widthSegments: 1, heightSegments: 1},
+						position: {x: 150, y: 55, z: 0},
+					    rotation:{ x:0, y:0, z:0 },
+					    material:{ type: 'phong', color: 0xFFFFFF }, 
+                		texture: { path: '1.jpg' },
+			        }, { poi_id: 'poi_6' });
+
+
+			        awe.events.add([{
+								id: 'ar_tracking_marker',
+								device_types: {
+									pc: 1,
+									android: 1
+								},
+								register: function(handler) {
+									window.addEventListener('ar_tracking_marker', handler, false);
+								},
+								unregister: function(handler) {
+									window.removeEventListener('ar_tracking_marker', handler, false);
+								},
+								handler: function(event) {
+									if (event.detail) {
+										
+
+										if (event.detail['64']) { 
+											// we are mapping marker #64 to this projection
+											awe.pois.update({
+												data: {
+													visible: true,
+                          							position: { x:0, y:0, z:0 },
+													matrix: event.detail['64'].transform
+												},
+												where: {
+													id: 'poi_3'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: true,
+                          							position: { x:0, y:0, z:0 },
+													matrix: event.detail['64'].transform
+												},
+												where: {
+													id: 'poi_4'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: true,
+                          							position: { x:0, y:0, z:0 },
+													matrix: event.detail['64'].transform
+												},
+												where: {
+													id: 'poi_5'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: true,
+                          							position: { x:0, y:0, z:0 },
+													matrix: event.detail['64'].transform
+												},
+												where: {
+													id: 'poi_6'
+												}
+											});
+										}
+										else {
+											awe.pois.update({
+												data: {
+													visible: false
+												},
+												where: {
+													id: 'poi_3'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: false
+												},
+												where: {
+													id: 'poi_4'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: false
+												},
+												where: {
+													id: 'poi_5'
+												}
+											});
+											awe.pois.update({
+												data: {
+													visible: false
+												},
+												where: {
+													id: 'poi_6'
+												}
+											});
+										
+										}
+										
+										awe.scene_needs_rendering = 1;
+									}
+								}
+							}])
+			      },
+          },
+          {
+            capabilities: [],
+            success: function() { 
+		          document.body.innerHTML = '<p>Try this demo in the latest version of Chrome or Firefox on a PC or Android device</p>';
+            },
+          },
+        ]);
+      }
+    });
+  });
+</script>
+</body>
+</html>

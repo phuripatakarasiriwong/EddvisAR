@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+      <title>Augmented Reality with Web Technology</title>
+  </head>
+
+    <body>
+
+        <script>
+
+          // Initialize and set-up Facebook javascript api
+          window.fbAsyncInit = function() {
+            FB.init({
+              appId      : '142869452798048',
+              xfbml      : true,
+              version    : 'v2.6'
+            });
+
+            FB.getLoginStatus(function(response) {
+              if (response.status === 'connected') {
+                accesstologin();
+                document.getElementById('status').innerHTML = 'You are connected.';
+              } else if (response.status === 'not_authorized') {
+                document.getElementById('status').innerHTML = 'You are not logged in.';
+              } else {
+                document.getElementById('status').innerHTML = 'You are not logged into Facebook';
+              }
+            })
+          };
+
+          (function(d, s, id){
+             var js, fjs = d.getElementsByTagName(s)[0];
+             if (d.getElementById(id)) {return;}
+             js = d.createElement(s); js.id = id;
+             js.src = "//connect.facebook.net/en_US/sdk.js";
+             fjs.parentNode.insertBefore(js, fjs);
+           }(document, 'script', 'facebook-jssdk'));
+
+          function login() {
+              FB.login(function(response) {
+                if (response.status === 'connected') {
+                document.getElementById('status').innerHTML = 'We are connected.';
+              } else if (response.status === 'not_authorized') {
+                document.getElementById('status').innerHTML = 'We are not logged in.';
+              } else {
+                document.getElementById('status').innerHTML = 'You are not logged into Facebook';
+              }
+              }, {scope: 'publish_actions'});
+            }
+
+
+            function getInfo() {
+              FB.api('/me','GET', {fields: 'first_name,last_name,name,id,picture.width(200).height(200)'}, function(response) {
+                document.getElementById('status').innerHTML = console.log(response);
+                // document.getElementById('status').innerHTML = response.id;
+              });
+            }
+
+          function post() {
+            FB.api('/me/feed','post', {message: 'my first status.....'}, function(response) {
+              document.getElementById('status').innerHTML = response.id;
+            });
+          }
+
+          function shareLink() {
+            FB.api('/me/feed', 'post',{link: 'http://hyperdia.com'}, function(response) {
+              document.getElementById('status').innerHTML = response.id;
+            });
+          }
+
+          function UploadPhoto() {
+            FB.api('/me/photos', 'post', {url: 'https://www.facebook.com/photo.php?fbid=10204932906910613&set=a.1362311826040.2053064.1478931301&type=3&theater'}, function(response) {
+              if(response || response.error) {
+                document.getElementById('status').innerHTML = response.id;
+              }
+            });
+          }
+
+          function checkin() {
+
+                FB.api('/me/checkins', 'post', { 
+                    message: 'Check-in Location at latitude: 1.3019399200902 and longitude: 103.84067653695',
+                     place: 165122993538708,
+                     coordinates: {
+                         'latitude': 1.3019399200902,
+                         'longitude': 103.84067653695
+                     }
+                  },
+                      function (response) {
+                          document.getElementById('status').innerHTML = response.id;
+                          alert("Checked in!");
+                      }
+                  );
+          }
+
+          
+          function accesstologin() {
+              location.replace("http://www.w3schools.com")
+              alert('You are connected to Facebook already');
+          }
+
+
+        </script>
+
+        <div id="status">Augmented Reality</div>
+        <button onclick="getInfo()">Get Info</button>
+        <button onclick="UploadPhoto()">Upload Photo</button>
+        <button onclick="post()">Post</button>
+        <button onclick="shareLink()">Share Link</button>
+        <button onclick="checkin()">Check-in</button>
+        <button onclick="login()">Login</button>
+
+    </body>
+
+</html>

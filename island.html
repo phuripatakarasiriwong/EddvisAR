@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<title>Augmented Reality in Browser</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+		<link rel='stylesheet' id='camera-css'  href='css/camera.css' type='text/css' media='all'>
+
+		<link rel="stylesheet" type="text/css" href="css/slicknav.css">
+		<link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		
+		
+		<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700|Open+Sans:700' rel='stylesheet' type='text/css'>
+		<script type="text/javascript" src="js/jquery.mobile.customized.min.js"></script>
+		<script type="text/javascript" src="js/jquery.easing.1.3.js"></script> 
+		<script type="text/javascript" src="js/camera.min.js"></script>
+		<script type="text/javascript" src="js/myscript.js"></script>
+		<script src="js/sorting.js" type="text/javascript"></script>
+		<script src="js/jquery.isotope.js" type="text/javascript"></script>
+		<!--script type="text/javascript" src="js/jquery.nav.js"></script-->
+		
+		<!--<script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>  -->
+	    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>  -->
+	    <script src="store-locator.min.js"></script>
+	    <!--<script src="places.js"></script>-->
+		
+		
+		
+		<!-- Script of Eddystone scan to search frequency -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no,
+		shrink-to-fit=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+		<!--
+		<style>
+		@import 'ui/css/evothings-app.css';
+		</style>-->
+
+
+<style>
+body {
+  font-family: sans-serif;
+}
+#map_canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 50px;
+  left: 0px;
+  
+
+  /* Display Google Map as a gray scale*/
+  /*filter: gray; /* IE6-9 */
+  /*-webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  /* -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  filter: grayscale(100%);  */
+}
+#listing {
+  position: absolute;
+  width: 600px;
+  height: 360px;
+  overflow: auto;
+  left: 800px;
+  top: 500px;
+  cursor: pointer;
+}
+#controls {
+  width: 200px;
+  position: absolute;
+  top: 500px;
+  left: 400px;
+  height: 60px;
+  padding: 5px;
+  font-size: 12px;
+}
+.placeIcon {
+  width: 16px;
+  height: 16px;
+  margin: 2px;
+  top:20;
+}
+#resultsTable {
+  font-size: 10px;
+  border-collapse: collapse;
+}
+#locationField {
+  width: 400px;
+  height: 25px;
+  top: 20px;
+  left: 0px;
+  position: absolute;
+}
+#autocomplete {
+  width: 400px;
+}
+div#info { width:100%; position:absolute; overflow:hidden; text-align:center; top:0;
+    left:0; }
+
+</style>
+
+
+
+		<script>
+			jQuery(function(){
+					jQuery('#camera_wrap_1').camera({
+					transPeriod: 500,
+					time: 3000,
+					height: '490px',
+					thumbnails: false,
+					pagination: true,
+					playPause: false,
+					loader: false,
+					navigation: false,
+					hover: false
+				});
+			});
+		</script>
+		
+	</head>
+	<body onload="initialize()">
+    
+    <!--home start-->
+    
+    <div id="home">
+    	<div class="headerLine">
+	<div id="menuF" class="default">
+		<div class="container">
+			<div class="row">
+				<div class="logo col-md-4">
+					<div>
+						<a href="#">
+							<img src="images/logo.png">
+						</a>
+					</div>
+				</div>
+				<div class="col-md-8">
+					<div class="navmenu"style="text-align: center;">
+						<ul id="menu">
+							<li><a href="mainpage.html">Beaches</a></li>
+							<li><a href="beaches.html">Beaches</a></li>
+							<li class="active"><a href="island.html">Islands</a></li>
+							<li><a href="gallery.html">Museums/Galleries</a></li>
+							<li><a href="city.html">Cities of Expat</a></li>
+							<li><a href="beers.html">Best Beers</a></li>
+							<li><a href="autum.html">Autumn</a></li>
+							<li><a href="lights.html">Holiday Lights</a></li>
+							<li><a href="sunsets.html">Sunsets</a></li>
+							<li><a href="wildlife.html">Wildlife</a></li>
+							<li><a href="snow.html">Snowy Cities</a></li>
+							<!--li><a href="#features">Features</a></li-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		<div class="container">
+			<div class="row wrap">
+				<div class="col-md-12 gallery"> 
+						<div class="camera_wrap camera_white_skin" id="camera_wrap_1">
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Connect<p><font color ="#29abe2">E</font>ddystone</p></h2>
+								</div>
+							</div>
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Enable<p><font color ="#bdccd4">A</font><font color ="#f93838">R</font> web</p></h2>
+								</div>
+							</div>
+							<div data-thumb="" data-src="images/slides/blank.gif">
+								<div class="img-responsive camera_caption fadeFromBottom">
+									<h2>Link<p><font color ="#8b9dc3">Social</font></p></h2>
+								</div>
+							</div>
+						</div><!-- #camera_wrap_1 -->
+				</div>
+			</div>
+		</div>
+	</div>
+    </div>
+    
+		
+
+    <!--project start-->    
+    <div id="project">    	
+
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12 wwa">
+				
+					<h3>THE WORLD'S BEST</h3>
+					<p>Trips, Adventures, and places to visit</p>
+					</div>
+				</div>
+			</div>
+       
+    
+    
+       <div class="container">			
+				<div class="portfolio_block columns3   pretty" data-animated="fadeIn">	
+
+						<div class="element col-sm-4   gall beaches">
+							<a class="plS" href="images/picBeaches/pic1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic1.jpg" alt="pic1 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">El Nido, Palawan, Philippines</a></h3>
+								<ul>
+									<li>Shockingly, Palawan remains steadily under the radar</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic2.jpg" alt="pic2 Gallery"/>
+							</a>
+							<div class="view project_descr center">
+								<h3><a href="#">Honokalani Beach, Wai'anapanapa State Park, Maui</a></h3>
+								<ul>
+									<li><a>With its jet-black shore, lapis lazuli waters and thick.</li>
+								</ul>
+							</div>
+						</div>
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic3.jpg" alt="pic3 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Pansy Island, Bazaruto Archipelago, Mozambique</a></h3>
+								<ul>
+									<li>A group of six islands that remain under the radar</li>
+								</ul>
+							</div>
+						</div>
+						
+						<div class="element col-sm-4   gall beaches">
+							<a class="plS" href="images/picBeaches/pic4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic4.jpg" alt="pic4 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Anse Lazio, Praslin, Seychelles</a></h3>
+								<ul>
+									<li>Anse Lazio, on the northwest tip of Praslin island</li>
+								</ul>
+							</div>
+						</div>
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic5.jpg" alt="pic5 Gallery"/>
+							</a>
+							<div class="view project_descr center">
+								<h3><a href="#">Honopu Beach, Kauai, HI</a></h3>
+								<ul>
+									<li><a>Also known as Cathedral Beach, Honopu—like Waipio Valley</li>
+								</ul>
+							</div>
+						</div>
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic6.jpg" alt="pic6 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sunset Beach, Oahu, HI</a></h3>
+								<ul>
+									<li>Well-known for one of the world's best places to watch big </li>
+								</ul>
+							</div>
+						</div>
+			
+						<div class="element col-sm-4   gall beaches">
+							<a class="plS" href="images/picBeaches/pic7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic7.jpg" alt="pic7 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Ipanema Beach, Rio de Janeiro, Brazil</a></h3>
+								<ul>
+									<li>The beach scene is a bustling one year-round on the mile-long</li>
+								</ul>
+							</div>
+						</div>
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic8.jpg" alt="pic8 Gallery"/>
+							</a>
+							<div class="view project_descr center">
+								<h3><a href="#">Blue Beach (La Chiva), Vieques, Puerto Rico</a></h3>
+								<ul>
+									<li><a>A long, thin stretch of perfect sand and crystal clear water</li>
+								</ul>
+							</div>
+						</div>
+						<div class="element col-sm-4  gall beaches">
+							<a class="plS" href="images/prettyPhotoImages/pic9.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/thumb_pic9.jpg" alt="pic9 Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Waipio Valley Beach, Big Island, HI</a></h3>
+								<ul>
+									<li>his beach in Waipio Valley is one of the hardest to get to Hawaii</li>
+								</ul>
+							</div>
+						</div>
+
+					<!-- Start of island element  ------------------------------------------------------------------------------------------------------------- -->
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Santorini.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Santorini.jpg" alt="Santorini Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Santorini, Greece</a></h3>
+								<ul>
+									<li>The sunsets from Oia town and the beaches of black, red, and white sand </li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Bali.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Bali.jpg" alt="Bali Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Bali, Indonesia</a></h3>
+								<ul>
+									<li>Bali, known as the "Island of the Gods"</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Vancouver.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Vancouver.jpg" alt="Vancouver Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Vancouver Island, BC, Canada</a></h3>
+								<ul>
+									<li>The largest Pacific island</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Whitsunday.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Whitsunday.jpg" alt="Whitsunday Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Whitsunday, Australia</a></h3>
+								<ul>
+									<li>Far all the magnificence of nature under the surface on Australia's Great Barrier Reef</li>
+
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Bermuda.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Bermuda.jpg" alt="Bermuda Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Bermuda</a></h3>
+								<ul>
+									<li>The isolated island chain of Bermuda</li>
+
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Waiheke.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Waiheke.jpg" alt="Waiheke Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Waiheke Island, New Zealand</a></h3>
+								<ul>
+									<li>Waiheke is a haven of beautiful vineyards, olive groves and beaches.</li>
+
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Moorea.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Moorea.jpg" alt="Moorea Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Moorea, French Polynesia</a></h3>
+								<ul>
+									<li>Surrounded by a bright blue lagoon, the volcanically formed island of Moorea.</li>
+
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Bora.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Bora.jpg" alt="Bora Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Bora Bora, French Polynesia</a></h3>
+								<ul>
+									<li>A perfect vacation destination in French Polynesia's Leeward Islands</li>
+
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4   gall islands">
+							<a class="plS" href="images/prettyPhotoImages/Palawan.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Palawan.jpg" alt="Palawan Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Palawan, Philippines</a></h3>
+								<ul>
+									<li>Nothing defines Palawan more than the water around it.</li>
+
+								</ul>
+							</div>
+						</div>
+			
+					<!-- End of island element  -->
+						
+					<!-- Start of Museum -------------- -------------- -------------- -------------- -------------- -------------- -------------- ---------------->
+			
+			
+						
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/Guggenheim.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Guggenheim.jpg" alt="Guggenheim Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">The Guggenheim Museum Bilbao, Spain</a></h3>
+								<ul>
+									<li>This Frank Gehry–designed museum opened in 1997 in Bilbao, a formerly dilapidated town in Basque country.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/peterburg.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/peterburg.jpg" alt="Peterburg Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Hermitage Museum, St. Petersburg, Russia</a></h3>
+								<ul>
+									<li>One of the largest and oldest museums in the world</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/potala.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/potala.jpg" alt="Potala Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Potala Palace, Lhasa, Tibet</a></h3>
+								<ul>
+									<li>Once the home to the Dalai Lama, this towering 17th-century structure now functions as a state museum.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/Vatican.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Vatican.jpg" alt="Vatican Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Vatican Museums, Italy</a></h3>
+								<ul>
+									<li>It's no great surprise that the Vatican Museums welcome at least five million tourists every year.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/soumaya.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/soumaya.jpg" alt="Soumaya Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Museo Soumaya at Plaza Carso, Mexico City</a></h3>
+								<ul>
+									<li>Museo Soumaya, designed by Mexican architect Fernando Romero (with consultation by Frank Gehry)</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/clock.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/clock.jpg" alt="Musée d'Orsay Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Musée d'Orsay, Paris</a></h3>
+								<ul>
+									<li>Paris's second-most iconic museum</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/kunsthistorisches.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/kunsthistorisches.jpg" alt="Kunsthistorisches Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Kunsthistorisches Museum, Vienna, Austria</a></h3>
+								<ul>
+									<li>one of the most famous landmarks in Vienna</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/Dali.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/Dali.jpg" alt="Dali Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">The Dali Museum, St. Petersburg, Florida</a></h3>
+								<ul>
+									<li>Borne of the private collection of Reynolds and Eleanor Morse</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  museums">
+							<a class="plS" href="images/prettyPhotoImages/ontario.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/ontario.jpg" alt="Ontario Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Royal Ontario Museum, Toronto, Canada</a></h3>
+								<ul>
+									<li>On the edge of Queen Park and chic Yorkville</li>
+								</ul>
+							</div>
+						</div>
+					<!-- End of musuems-->	
+
+
+					<!-- Start of Expat --------------------------------------------------------------------------             -->
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat1.jpg" alt="Sydney Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sydney, Australia</a></h3>
+								<ul>
+									<li>Some of the world’s best restaurants, a vibrant arts and music scene, a thriving financial center.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat2.jpg" alt="Copenhagen"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Copenhagen, Denmark</a></h3>
+								<ul>
+									<li>Scandinavian countries always seem to end up at the top of quality of life indexes.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat3.jpg" alt="Geneva Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Geneva, Switzerland</a></h3>
+								<ul>
+									<li>Geneva offers enough in the way of quality of life.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat4.jpg" alt="Frankfurt Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Frankfurt, Germany</a></h3>
+								<ul>
+									<li>Frankfurt is continental Europe's biggest financial center and as such.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat5.jpg" alt="Vancouver Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Vancouver, Canada</a></h3>
+								<ul>
+									<li>Vancouver is unique in the country for its balance between big-city life and a commitment to its natural environment.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat6.jpg" alt="Vancouver Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sydney, Australia</a></h3>
+								<ul>
+									<li>Some of the world’s best restaurants, a vibrant arts and music scene, a thriving financial center.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat7.jpg" alt="Munich Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Munich, Germany</a></h3>
+								<ul>
+									<li>Munich is a Bavarian metropolis that offers a high quality of life to those who decide to stay a little longer.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat8.jpg" alt="Auckland Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Auckland, New Zealand</a></h3>
+								<ul>
+									<li>The fact that the city’s oldest park, the Auckland Domain, is built around the eruption crater of an extinct volcano is indicative of what makes Auckland special.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  expat">
+							<a class="plS" href="images/prettyPhotoImages/expat9.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/expat9.jpg" alt="Vienna Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Vienna, Austria</a></h3>
+								<ul>
+									<li>Vienna is well known for its centuries-old history as the epicenter of European intellectual life, home to a long list of monumental figures, from Mozart to Freud to Hayek.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of Expat-->
+
+					<!-- Start of BEST BEERS ------------------------------------------------------------------------------------------------- -->
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers1.jpg" alt="Brussels Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Brussels</a></h3>
+								<ul>
+									<li>With its beer once consumed as an alternative to dirty drinking water.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers2.jpg" alt="Munich Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Munich</a></h3>
+								<ul>
+									<li>Home to Oktoberfest—the renowned drunken festival.</li>
+								</ul>
+							</div>
+						</div>	
+				
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers3.jpg" alt="Rome Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Rome</a></h3>
+								<ul>
+									<li>Long considered a bastion of wine, Italy is experiencing a beer breakthrough, where you should go to indulge.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers4.jpg" alt="Montpelier Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Montpelier, Vermont</a></h3>
+								<ul>
+									<li>Montpelier places you in closest proximity to imbibe these treasured beverages.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers5.jpg" alt="Cleveland Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Cleveland, Ohio</a></h3>
+								<ul>
+									<li>An impressive array of award-winning India pale ales might just crown Cleveland the country’s new hop capital.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers6.jpg" alt="St. Louis Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">St. Louis, Missouri</a></h3>
+								<ul>
+									<li>Perennial Artisan Ales draws international attention for their annual release of Barrel-Aged Abraxas.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers7.jpg" alt="Garage Project Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Wellington, New Zealand</a></h3>
+								<ul>
+									<li>Garage Project provides one anyway, featuring some of the most spectacular beer in the world.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers8.jpg" alt="Funkatorium Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Asheville, North Carolina</a></h3>
+								<ul>
+									<li>Nestled in the Smoky Mountains, Asheville is by no means an undiscovered craft beer destination.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  beers">
+							<a class="plS" href="images/prettyPhotoImages/beers9.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/beers9.jpg" alt="Hood River Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Hood River, Oregon</a></h3>
+								<ul>
+									<li>A must for the beer-lover’s bucket list.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of BEERS -->
+
+					<!-- Start of BEST Fallsz ------------------------------------------------------------------------------------------------- -->
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls1.jpg" alt="Bran Castle Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Bran Castle, Transylvania, Romania</a></h3>
+								<ul>
+									<li>Bran Castle, also known as Dracula’s Castle, lies atop a smoky hill in the middle of this eerie landscape.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls2.jpg" alt="Bukhansan Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Bukhansan Mountain, Seoul, Korea</a></h3>
+								<ul>
+									<li>Bukhansan National Park offers an amazing natural getaway just north of this bustling metropolis.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls3.jpg" alt="Duoro Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Duoro Wine Region, Portugal</a></h3>
+								<ul>
+									<li>One of Portugal’s main wine regions, and a unique place for fall foliage.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls4.jpg" alt="Fragrant hills Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Fragrant Hills, Beijing, China</a></h3>
+								<ul>
+									<li>An imperial garden in northwestern Beijing that dates back to the 12th century.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls5.jpg" alt="Hraunfossar Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Hraunfossar Waterfalls, Husafell, Iceland</a></h3>
+								<ul>
+									<li>Stretches for nearly a kilometer, spilling over the giant steps of an ancient lava field into a turquoise glacial river.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls6.jpg" alt="Neuschwanstein Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Neuschwanstein Castle, Bavaria, Germany</a></h3>
+								<ul>
+									<li>Famous for bringing Oktoberfest to the world.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls7.jpg" alt="St. Petersburg Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Summer Garden, St. Petersburg, Russia</a></h3>
+								<ul>
+									<li>Venice of the North, famous for its gorgeous architecture and alluring parks.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  falls">
+							<a class="plS" href="images/prettyPhotoImages/falls8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/falls8.jpg" alt="Takachiho Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Takachiho Gorge, Miyazaki, Japan</a></h3>
+								<ul>
+									<li>The sides of the rock walls go from vertical and smooth to horizontal and jagged and present a natural timeline of the region’s geology.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of BEST Fallsz -->
+
+					<!-- Start of Holliday lights ------------------------------------------------------------------------------------------------- -->
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights1.jpg" alt="New Delhi Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">New Delhi, India</a></h3>
+								<ul>
+									<li>Dhanteras typically marks the start of the financial year—and a major shopping season—in India.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights2.jpg" alt="New Delhi Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Old Delhi, India</a></h3>
+								<ul>
+									<li>Rooftops across the old city during Diwali. In Hinduism, the festival celebrates good triumphing over evil.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights3.jpg" alt="Kathmandu Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Kathmandu, Nepal</a></h3>
+								<ul>
+									<li>Vendors sell colored powders at a market in Nepal, where the holiday is called Tihar.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights4.jpg" alt="Hyderabad Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Hyderabad, Pakistan</a></h3>
+								<ul>
+									<li>Lighting sparklers on the eve of Diwali.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights5.jpg" alt="Gandhinagar Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Gandhinagar, India</a></h3>
+								<ul>
+									<li>The many oil lamps decorating Akshardham Temple will stay lit until Bhai Duj, the fifth and final day of the festival.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights6.jpg" alt="Kolkata Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Kolkata, India</a></h3>
+								<ul>
+									<li>Fireworks at a park in Kolkata to celebrate Diwali.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  lights">
+							<a class="plS" href="images/prettyPhotoImages/lights7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/lights7.jpg" alt="Port of Spain Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Port of Spain, Trinidad</a></h3>
+								<ul>
+									<li>Lamps on sale at a market before Diwali celebrations begin—the Caribbean island.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of Holiday lights -->
+
+					<!-- Start of Sun Set ------------------------------------------------------------------------------------------------- -->
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset1.jpg" alt="Port of Spain Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Micato Safaris, Kenya and Tanzania</a></h3>
+								<ul>
+									<li>The African sun painting the land in reds and oranges while casting silhouettes over the savannah wildlife.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset2.jpg" alt="Angkor Watt Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Angkor Watt, Cambodia</a></h3>
+								<ul>
+									<li>The iconic, spired temple complex.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset3.jpg" alt="Quebec Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Quebec City, Canada</a></h3>
+								<ul>
+									<li>The sun brushstroke the UNESCO World Heritage-designated Old Town in pinks and purples, a live watercolor painting.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset4.jpg" alt="Anantara Dhigu Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Anantara Dhigu Maldives Resort, Maldives</a></h3>
+								<ul>
+									<li>Heavenly overwater hammock, where you can sway across the horizon, marooned in the remote shallows of the archipelago.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset5.jpg" alt="Salar de Atacama Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Salar de Atacama, Atacama Desert, Chile</a></h3>
+								<ul>
+									<li>Skies alternate between blue and purple, reflecting off the shallow water.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset6.jpg" alt="Aqua Expeditions Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Aqua Expeditions, Peru</a></h3>
+								<ul>
+									<li>Mind-blowing sunsets that create an ever-changing kaleidoscope of colors.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset7.jpg" alt="Qasr al Sarab Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Qasr al Sarab Resort by Anantara, Abu Dhabi</a></h3>
+								<ul>
+									<li>Sky-high, rust-hued sand dunes put on a constant spectacle, changing colors and shape with the wind and movement of the sun.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset8.jpg" alt="Tradewind Aviation Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Tradewind Aviation, U.S. and Caribbean</a></h3>
+								<ul>
+									<li>Opt for the early evening flights when the pilots of these low-flying planes treat passengers to dreamy sunsets over Boston.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  sunset">
+							<a class="plS" href="images/prettyPhotoImages/sunset9.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/sunset9.jpg" alt="St. Barths Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">St. Barths, French West Indies</a></h3>
+								<ul>
+									<li>Extravagance to the island’s famed jaw-dropping sunsets</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of Sun Set -->
+					<!-- Start of Hotel ------------------------------------------------------------------------------------------------- -->
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel1.jpg" alt="Makanyane Safari Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Makanyane Safari Lodge, South Africa</a></h3>
+								<ul>
+									<li>The secluded suites have floor-to-ceiling glass windows perfect for watching passing elephants.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel2.jpg" alt="Makanyane Safari Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Giraffe Manor, Nairobi, Kenya</a></h3>
+								<ul>
+									<li>Six bedrooms and offers guests the chance to share their breakfast table with the eight resident giraffes.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel3.jpg" alt="Lapa Rios Eco Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Lapa Rios Eco Lodge,Islita,Guanacaste,Costa Rica</a></h3>
+								<ul>
+									<li>Monkeys, macaws, sloths, and toucans are just a few of the guests you’ll share your stay with.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel4.jpg" alt="Sea Lion Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sea Lion Lodge, Sea Lion Island, Falkland Islands</a></h3>
+								<ul>
+									<li>A rookery of Gentoo penguins has been known to set up camp next to Sea Lion Lodge, a cozy 3-star hotel in the Falkland Islands.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel5.jpg" alt="Sarova Salt Lick Game Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sarova Salt Lick Game Lodge, Tsavo, Kenya</a></h3>
+								<ul>
+									<li>Perched above a watering hole. Spotting wildlife from your room window is possible at any hour of the day.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel6.jpg" alt="State Game Lodge"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">State Game Lodge, Custer State Park, South Dakota</a></h3>
+								<ul>
+									<li>71,000 acres of nature…and 1,300 free-roaming bison.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  hotel">
+							<a class="plS" href="images/prettyPhotoImages/hotel7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/hotel7.jpg" alt="Lapa Rios Eco Lodge Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Royal Malewane Private Game Lodge, Hoedspruit, South Africa</a></h3>
+								<ul>
+									<li>Private plunge pools that come with each room. While soaking in the South African sun, an elephant or two just might drop by.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of Hotel -->
+					<!-- Start of Snow ------------------------------------------------------------------------------------------------- -->
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow1.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow1.jpg" alt="Valdez Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Valdez, Alaska</a></h3>
+								<ul>
+									<li>Surrounded by the glaciated Chugach Mountains and can see as much as 325 inches of the white stuff annually.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow2.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow2.jpg" alt="Aomori City Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Aomori City, Tōhoku, Japan</a></h3>
+								<ul>
+									<li>Pummeled with a tremendous 300 average inches of snow a year.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow3.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow3.jpg" alt="Sapporo Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Sapporo, Hokkaido, Japan</a></h3>
+								<ul>
+									<li>One of the world’s snowiest. Also famous for producing the Japanese beer.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow4.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow4.jpg" alt="Quebec Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Quebec City, Quebec, Canada</a></h3>
+								<ul>
+									<li>Plenty of ways to celebrate its status as a winter wonderland, with nearly 150 inches of snow falling annually.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow5.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow5.jpg" alt="Toyama Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Toyama, Hokuriku, Japan</a></h3>
+								<ul>
+									<li>More than 143 inches of snow per year.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow6.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow6.jpg" alt="St. John's Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">St. John's, Newfoundland and Labrador, Canada</a></h3>
+								<ul>
+									<li>The city is known as the foggiest, the windiest, and the cloudiest of major Canadian cities.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow7.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow7.jpg" alt="Syracuse Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Syracuse, NY</a></h3>
+								<ul>
+									<li>The city is well-equipped to deal with the roughly 120 inches of snow it sees annually.</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="element col-sm-4  gall  snow">
+							<a class="plS" href="images/prettyPhotoImages/snow8.jpg" rel="prettyPhoto[gallery2]">
+								<img class="img-responsive picsGall" src="images/prettyPhotoImages/snow8.jpg" alt="Erie Gallery"/>
+							</a>
+							<div class="view project_descr ">
+								<h3><a href="#">Erie, Pennsylvania</a></h3>
+								<ul>
+									<li>With an average of 100 inches of snow falling each year, Erie has cold winters typical of towns in its surrounding snow belt.</li>
+								</ul>
+							</div>
+						</div>
+					<!-- end of Snow -->
+
+				
+				</div>
+				<!-- end of animation --> 
+
+			
+			<script type="text/javascript">
+				jQuery(window).load(function(){
+					items_set = [
+					
+						{category : 'islands', lika_count : '77', view_count : '234', src : 'images/prettyPhotoImages/pic9.jpg', title : 'Foil Mini Badges', content : '' },
+						
+						{category : 'beaches', lika_count : '45', view_count : '100', src : 'images/prettyPhotoImages/pic7.jpg', title : 'Darko – Business Card Mock Up', content : '' },
+						
+						{category : 'museums', lika_count : '22', view_count : '140', src : 'images/prettyPhotoImages/pic8.jpg', title : 'Woody Poster Text Effect', content : '' },
+
+						{category : 'expat', lika_count : '22', view_count : '140', src : 'images/prettyPhotoImages/Guggenheim.jpg', title : 'Woody Poster Text Effect', content : '' },
+						
+						{category : 'beers', lika_count : '22', view_count : '140', src : 'images/prettyPhotoImages/Guggenheim.jpg', title : 'Woody Poster Text Effect', content : '' }
+
+					];
+					jQuery('.portfolio_block').portfolio_addon({
+						type : 1, // 2-4 columns simple portfolio
+						load_count : 3,
+						
+						items : items_set
+					});
+					$('#container').isotope({
+					  animationOptions: {
+						 duration: 900,
+						 queue: false
+					   }
+					});
+				});
+			</script>
+		</div>
+    </div>    
+     
+    <!--contact start-->
+    
+    <div id="contact">
+    	<div class="line5">					
+			<div class="container">
+				<div class="row Ama">
+					<div class="col-md-12">
+					<h3>Got a Question? We&rsquo;re Here to Help!</h3>
+					<p>Get in touch with us</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9 col-xs-12 forma">
+					<form>
+						<input type="text" class="col-md-6 col-xs-12 name" name='name' placeholder='Name *'/>
+						<input type="text" class="col-md-6 col-xs-12 Email" name='Email' placeholder='Email *'/>
+						<input type="text" class="col-md-12 col-xs-12 Subject" name='Subject' placeholder='Subject'/>
+						<textarea type="text" class="col-md-12 col-xs-12 Message" name='Message' placeholder='Message *'></textarea>
+						<div class="cBtn col-xs-12">
+							<ul>
+								<li class="clear"><a href="#"><i class="fa fa-times"></i>clear form</a></li>
+								<li class="send"><a href="#"><i class="fa fa-share"></i>Send Message</a></li>
+							</ul>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		<div class="lineBlack">
+			<div class="container">
+				<div class="row downLine">
+					<div class="col-md-12 text-right">
+						<!--input  id="searchPattern" type="search" name="pattern" value="Search the Site" onblur="if(this.value=='') {this.value='Search the Site'; }" onfocus="if(this.value =='Search the Site' ) this.value='';this.style.fontStyle='normal';" style="font-style: normal;"/-->
+						<input  id="searchPattern" type="search" placeholder="Search the Site"/><i class="glyphicon glyphicon-search" style="font-size: 13px; color:#a5a5a5;" id="iS"></i>
+					</div>
+					<div class="col-md-6 text-left copy">
+						<p>Copyright &copy; 2016.</p>
+					</div>
+					<div class="col-md-6 text-right dm">
+						<ul id="downMenu">
+							<li class="active"><a href="#home">Home</a></li>
+							<li><a href="#about">About</a></li>
+							<li><a href="#project1">Projects</a></li>
+							<li><a href="#news">News</a></li>
+							<li class="last"><a href="#contact">Contact</a></li>
+							<!--li><a href="#features">Features</a></li-->
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>		
+		
+		
+	<script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.slicknav.js"></script>
+	<script>
+			$(document).ready(function(){
+			$(".bhide").click(function(){
+				$(".hideObj").slideDown();
+				$(this).hide(); //.attr()
+				return false;
+			});
+			$(".bhide2").click(function(){
+				$(".container.hideObj2").slideDown();
+				$(this).hide(); // .attr()
+				return false;
+			});
+				
+			$('.heart').mouseover(function(){
+					$(this).find('i').removeClass('fa-heart-o').addClass('fa-heart');
+				}).mouseout(function(){
+					$(this).find('i').removeClass('fa-heart').addClass('fa-heart-o');
+				});
+				
+				function sdf_FTS(_number,_decimal,_separator)
+				{
+				var decimal=(typeof(_decimal)!='undefined')?_decimal:2;
+				var separator=(typeof(_separator)!='undefined')?_separator:'';
+				var r=parseFloat(_number)
+				var exp10=Math.pow(10,decimal);
+				r=Math.round(r*exp10)/exp10;
+				rr=Number(r).toFixed(decimal).toString().split('.');
+				b=rr[0].replace(/(\d{1,3}(?=(\d{3})+(?:\.\d|\b)))/g,"\$1"+separator);
+				r=(rr[1]?b+'.'+rr[1]:b);
+
+				return r;
+}
+				
+			setTimeout(function(){
+					$('#counter').text('0');
+					$('#counter1').text('0');
+					$('#counter2').text('0');
+					setInterval(function(){
+						
+						var curval=parseInt($('#counter').text());
+						var curval1=parseInt($('#counter1').text().replace(' ',''));
+						var curval2=parseInt($('#counter2').text());
+						if(curval<=707){
+							$('#counter').text(curval+1);
+						}
+						if(curval1<=12280){
+							$('#counter1').text(sdf_FTS((curval1+20),0,' '));
+						}
+						if(curval2<=245){
+							$('#counter2').text(curval2+1);
+						}
+					}, 2);
+					
+				}, 500);
+			});
+	</script>
+	<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery('#menu').slicknav();
+		
+	});
+	</script>
+	
+	<script type="text/javascript">
+    $(document).ready(function(){
+       
+        var $menu = $("#menuF");
+            
+        $(window).scroll(function(){
+            if ( $(this).scrollTop() > 100 && $menu.hasClass("default") ){
+                $menu.fadeOut('fast',function(){
+                    $(this).removeClass("default")
+                           .addClass("fixed transbg")
+                           .fadeIn('fast');
+                });
+            } else if($(this).scrollTop() <= 100 && $menu.hasClass("fixed")) {
+                $menu.fadeOut('fast',function(){
+                    $(this).removeClass("fixed transbg")
+                           .addClass("default")
+                           .fadeIn('fast');
+                });
+            }
+        });
+	});
+    //jQuery
+	</script>
+	<script>
+		/*menu*/
+		function calculateScroll() {
+			var contentTop      =   [];
+			var contentBottom   =   [];
+			var winTop      =   $(window).scrollTop();
+			var rangeTop    =   200;
+			var rangeBottom =   500;
+			$('.navmenu').find('a').each(function(){
+				contentTop.push( $( $(this).attr('href') ).offset().top );
+				contentBottom.push( $( $(this).attr('href') ).offset().top + $( $(this).attr('href') ).height() );
+			})
+			$.each( contentTop, function(i){
+				if ( winTop > contentTop[i] - rangeTop && winTop < contentBottom[i] - rangeBottom ){
+					$('.navmenu li')
+					.removeClass('active')
+					.eq(i).addClass('active');				
+				}
+			})
+		};
+		
+		$(document).ready(function(){
+			calculateScroll();
+			$(window).scroll(function(event) {
+				calculateScroll();
+			});
+			$('.navmenu ul li a').click(function() {  
+				$('html, body').animate({scrollTop: $(this.hash).offset().top - 80}, 800);
+				return false;
+			});
+		});		
+	</script>	
+	<script type="text/javascript" charset="utf-8">
+
+		jQuery(document).ready(function(){
+			jQuery(".pretty a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: true, social_tools: ''});
+			
+		});
+	</script>
+	</body>
+	
+</html>

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EddvisAR - Augmented Reality in Web Browser Technology</title>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<meta charset="utf-8"/>
+<script type="text/javascript" src="scripts/orientationChange.js"></script>
+
+<!-- COMPASS -->
+
+<script type="text/javascript" src="scripts/orientationChange.js"></script>
+
+<script type="text/javascript" src="scripts/gl-matrix.min.js"></script>
+<script type="text/javascript" src="scripts/fulltilt.min.js"></script>
+<script type="text/javascript" src="scripts/compass.js"></script>
+
+<!-- FEATURE DETECTION -->
+
+<link rel="stylesheet" href="featuredetection/styles/panel.css">
+<script src="featuredetection/modernizr.js"></script>
+<script src="featuredetection/panel.js"></script>
+
+<!-- DEVICEORIENTATION EMULATOR DETECTION + BOOTSTRAP -->
+<script src="https://richtr.github.io/doe/doe.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+<script type="text/javascript" src="jquery.easyui.min.js"></script>
+    <script>
+      var GlobalTravel = 0;
+      var GlobalTotalDis = 0;
+      var StepToMetre = 1.5;
+      //http://www.convertunits.com/from/step/to/meter
+
+      var Globaldistance;
+
+
+      var oldAcceleration = [0, 0, 0];
+      var isChange = 0;
+      var stepCount = 0;
+      var scrollAmount = 30;
+
+
+
+    </script>
+<script>
+
+window.addEventListener('load', function() {
+
+  /* Pretty Print Feature Detection */
+  //if(window.FeaturePanel) {
+    //new FeaturePanel({
+      //title: 'Marine Compass',
+      //legend: 'A fully web standards compliant JavaScript 3D Compass application.',
+      //link: 'https://github.com/richtr/Marine-Compass',
+      //features: [
+        //{name: 'deviceorientation', title: 'Device Orientation Events', link: 'http://caniuse.com/#feat=deviceorientation'},
+        //{name: 'webgl', title: 'WebGL', link: 'http://caniuse.com/#feat=webgl'}
+      //]
+    //});
+  //}
+ /* Compass Web App */
+  var canvasElement = document.getElementById('glCanvas');
+  canvasElement.setAttribute('width', window.innerWidth);
+  canvasElement.setAttribute('height', window.innerHeight);
+
+  var headingElement = document.getElementById('headingReading');
+
+  // var headingElement = document.getElementById('headingReading');
+  // headingElement + " Direction: " + compassdirection
+  new Compass( canvasElement, headingElement);
+
+}, true);
+
+</script>
+<script type="text/javascript">
+
+
+
+
+
+</script>
+
+<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+#container {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	overflow: hidden;
+}
+
+  #glCanvas {
+    position: absolute;
+    top: 450px;
+    left: 100px;
+    width: 1px;
+    height: 1px;
+
+  }
+  .output_err {
+    display: block;
+    background-color: #fff;
+    color: #CC0000;
+    font-weight: bold;
+    border: 1px solid #000;
+    margin: 20px 10px;
+    padding: 20px;
+  }
+  .heading {
+    display: block;
+    text-align: center;
+    padding: 10px 0 0;
+    height: 40px;
+    color: #fff;
+    font-size: 0.8em;
+    font-weight: normal;
+  }
+  .headingcompass {
+    display: block;
+    text-align: center;
+    padding: 0px 0 0;
+    height: 20px;
+    color: #fff;
+    font-size: 0.8em;
+    font-weight: normal;
+  }
+
+</style>
+</head>
+<!--  <body onload="initGeolocation();">  -->
+<body onload="getLocation();">  
+<div class="heading">Heading: <span id="headingReading">-</span>&deg;<p id="directional"></p></div>
+<canvas id="glCanvas" width="320" height="240"></canvas>
+<div id="container"></div>
+<script type="text/javascript" src="js/awe-loader-min.js"></script>
+<p id="demo"></p>
+<p id="moStepCount"></p>
+<p class="headingcompass" id="directional"></p>
+<p id="demogeo"></p>
+<p id ="alldistance"></p>
+
+<script type="text/javascript">
+          
+
+          var longitudemap, latitudemap;
+
+            function myFunction(a, b) 
+            {
+              return a * b;
+            }
+
+
+            function initGeolocation()
+         {
+            if( navigator.geolocation )
+            {
+               // Call getCurrentPosition with success and failure callbacks
+               navigator.geolocation.getCurrentPosition( success, fail );
+            }
+            else
+            {
+               alert("Sorry, your browser does not support geolocation services.");
+            }
+         }
+
+         function success(position)
+         {
+           longitudemap = position.coords.longitude;
+           latitudemap = position.coords.latitude;
+             //document.getElementById('long').value = position.coords.longitude;
+             //document.getElementById('lat').value = position.coords.latitude;
+             //alert("longitude :" + longitudemap);
+             //x.innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitute: " + position.coords.longitude;
+         }
+
+         function fail()
+         {
+            // Could not obtain location
+         }
+
+                        
+            function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) 
+            {
+              var R = 6371000; // Radius of the earth in m
+              var dLat = deg2rad(lat2-lat1);  // deg2rad below
+              var dLon = deg2rad(lon2-lon1); 
+              var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2); 
+              var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+              var d = R * c; // Distance in km measurement
+              return d;
+
+            }
+
+            function deg2rad(deg) 
+            {
+              return deg * (Math.PI/180)
+            }
+
+            var x = document.getElementById("demogeo");
+
+              function getLocation() {
+                  if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(showPosition);
+                  } else {
+                      x.innerHTML = "Geolocation is not supported by this browser.";
+                  }
+              }
+
+              function showPosition(position) {
+                  //x.innerHTML = "Latitude: " + position.coords.latitude +
+                  //"<br>Longitude: " + position.coords.longitude;
+                  Globaldistance = getDistanceFromLatLonInKm(position.coords.latitude,position.coords.longitude,36.062386,140.1358352)
+                  //document.getElementById("demo").innerHTML = "Distance Between current position and iBeacons: " + Globaldistance;
+                  GlobalTotalDis = Globaldistance;
+                 // document.getElementById("distance-number").innerHTML = "TotalStep: "+totalstep;
+              }
+
+
+            //document.getElementById("demo").innerHTML = "Distance Between iBeacons: " + getDistanceFromLatLonInKm(36.062386,140.135769,36.062409,140.135762);
+            //document.getElementById("geolalong").innerHTML = "Latitide : " + getDistanceFromLatLonInKm(36.062386,140.135769,36.062409,140.135762) + "<br>Longitude: ";
+            //document.getElementById("geolalong").innerHTML = "Latitide : " + position.coords.latitude + "<br>Longitude: ";
+            
+      </script>
+
+      <script>
+      // 8 Directional Declare
+       var NP = [];
+       var NEP = [];
+       var NWP = [];
+       var EP = [];
+       var WP = [];
+       var SWP = [];
+       var SEP = [];
+       var SP = [];
+
+
+
+  window.addEventListener('load', function() {
+    // initialize awe after page loads
+    window.awe.init({
+      // automatically detect the device type
+      device_type: awe.AUTO_DETECT_DEVICE_TYPE,
+      // populate some default settings
+      settings: {
+      	container_id: 'container',
+        fps: 30,
+        default_camera_position: { x:0, y:0, z:0 },
+        default_lights:[
+          {
+            id: 'point_light',
+            type: 'point',
+            color: 0xFFFFFF
+          },
+        ],
+      },
+      ready: function() {
+        // load js files based on capability detection then setup the scene if successful
+        awe.util.require([
+          {
+            capabilities: ['gum','gyro','webgl'],
+            files: [ 
+              [ 'js/awe-standard-dependencies.js', 'js/awe-standard.js' ], // core dependencies for this app 
+              'js/awe-standard-window_resized.js', // window resize handling plugin
+              'js/awe-standard-object_clicked.js', // object click/tap handling plugin
+              'awe.geo_ar.js', // geo ar plugin
+            ],
+            success: function() { 
+              // limit demo to supported devices
+              // NOTE: only Chrome and Firefox has implemented the DeviceOrientation API in a workable way
+              //       so for now we are excluding all others to make sure your first experience is a happy one
+              var device_type = awe.device_type();
+              var browser_unsupported = false;
+              if (device_type != 'android') {
+                browser_unsupported = true;
+              } else if (!navigator.userAgent.match(/chrome|firefox/i)) {
+                browser_unsupported = true;
+              }
+              if (browser_unsupported) {
+                document.body.innerHTML = '<p>This demo currently requires a standards compliant Android browser (e.g. Chrome M33).</p>';
+                return;
+              }
+
+              // setup and paint the scene
+			  window.awe.setup_scene();
+             // setup some code to handle when an object is clicked/tapped
+              window.addEventListener('object_clicked', function(e) { 
+                
+                 //id of object  
+                 var id = e.detail.projection_id;
+
+                 if(id == "s")
+                 {
+                 	 //window.location="http://www.google.com";
+                 	 document.getElementById('download').click();
+                 }
+                 else if(id == "n")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="targetbase_kawaguchiko.html";
+                 }
+                 else if(id == "n2")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="https://en.wikipedia.org/wiki/Mount_Fuji";
+                 }
+                 else if(id == "ne")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="http://www.fujisan-climb.jp/en/";
+                 }
+                 else if(id == "ne")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="https://www.fujisan.ne.jp/index_e.php";
+                 }
+                 else if(id == "e")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="http://www.onsenji.com/en/";
+                 }
+                 else if(id == "se")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="http://mtfuji-jp.com/lake-kawaguchi/";
+                 }
+                 else if(id == "sw")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="https://www.jreast.co.jp/e/fuji/course/fuji_sample01.html";
+                 }
+
+                 else if(id == "w")
+                 {
+                   //window.location="http://www.google.com";
+                   window.location="https://www.tripadvisor.com/Attraction_Review-g1165976-d1368644-Reviews-Kawaguchiko_Lake-Fujikawaguchiko_machi_Minamitsuru_gun_Yamanashi_Prefecture_Chub.html";
+                 }
+                 else
+                 {
+                    window.location="targetbase_kawaguchiko.html";
+                 }
+
+              }, false);
+             init();
+
+      function init(){
+        if (window.DeviceMotionEvent) {
+            window.addEventListener('devicemotion', deviceMotionHandler, false);
+        } else {
+          console.log('This device does not support Device Motion');
+        }
+      }
+      
+      function deviceMotionHandler(eventData) {
+        var info, xyz = "[X, Y, Z]";
+
+        // Grab the acceleration from the results
+        var acceleration = eventData.acceleration;
+        info = xyz.replace("X", acceleration.x);
+        info = info.replace("Y", acceleration.y);
+        info = info.replace("Z", acceleration.z);
+        //document.getElementById("moAccel").innerHTML = info;
+
+        // Grab the acceleration including gravity from the results
+        acceleration = eventData.accelerationIncludingGravity;
+        info = xyz.replace("X", acceleration.x);
+        info = info.replace("Y", acceleration.y);
+        info = info.replace("Z", acceleration.z);
+        //document.getElementById("moAccelGrav").innerHTML = info;
+
+        // Grab the rotation rate from the results
+        var rotation = eventData.rotationRate;
+        info = xyz.replace("X", rotation.alpha);
+        info = info.replace("Y", rotation.beta);
+        info = info.replace("Z", rotation.gamma);
+        //document.getElementById("moRotation").innerHTML = info;
+
+        // // Grab the refresh interval from the results
+        info = eventData.interval;
+        //document.getElementById("moInterval").innerHTML = info;   
+
+        // compare with old acceleration
+        var dot =   (oldAcceleration.x * acceleration.x) +
+              (oldAcceleration.y * acceleration.y) +
+              (oldAcceleration.z * acceleration.z);
+
+        var a = Math.abs(Math.sqrt(   Math.pow(oldAcceleration.x,2) +
+                        Math.pow(oldAcceleration.y,2) +
+                        Math.pow(oldAcceleration.z,2)));
+
+        var b = Math.abs(Math.sqrt(   Math.pow(acceleration.x,2) +
+                        Math.pow(acceleration.y,2) +
+                        Math.pow(acceleration.z,2)));
+
+        dot /= (a * b);
+
+        //console.log(dot);
+
+        if(dot <= 0.994 && dot > 0.90){ //bounce
+          //console.log("bounce");
+          //console.log("step count: " + stepCount + ", isChange: " + isChange);
+          if(isChange == 0){
+            stepCount+=1;
+            if(stepCount%2==0){
+              income = getdirection();
+              Resize();
+
+
+            
+
+            }
+
+            stepDetected();
+          } else {
+            if(isChange == 3){
+              isChange = -1;
+            }
+          }
+          isChange+=1;
+        }
+        // set old acceleration to current
+        oldAcceleration = acceleration;    
+
+        // display step count
+        //document.getElementById("moStepCount").innerHTML = "TotalStep: " + stepCount +"Compass: "+compassdirection;
+        //document.getElementById("alldistance").innerHTML = "All Distance :" + GlobalTotalDis;
+      }
+
+
+
+
+      function stepDetected(){
+        var s = $('body').scrollTop();
+        console.log(s);
+        s += 80;
+        $('body').animate({
+          scrollTop: "+=" + scrollAmount
+        }, 500);
+      }
+
+      function Enlarge(){
+        for(i = 0;i< NP.length;i++){
+              var scale = 1;
+              var a = awe.projections.view(NP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: a.scale.x+scale, y: a.scale.y+scale, z: a.scale.z+scale},
+                  },
+                  where:{ id:NP[i]}
+                });
+              }
+      }
+
+             function getdirection(){
+              var index;
+
+              if(compassdirection == 'North')index = 0;
+                  else if(compassdirection == 'East')index = 1;
+                      else if(compassdirection == 'South')index = 2;
+                          else if(compassdirection == 'West')index = 3;
+              return index;
+             }
+             
+
+             function Resize(){
+            
+              var size;
+              var pos = 0;
+              var scaling =  (1.5/18)*0.8; 
+              //travel (distance/20)
+              var income = getdirection();
+              if(income == 0){size = [1,0,-1,0]}
+                else if(income == 1){size = [0,1,0,-1]}
+                  else if(income == 2){size = [-1,0,1,0]}
+                    else if(income == 3){size = [0,-1,0,1]}
+
+
+              GlobalTravel = GlobalTravel + 1.5* (size[income]);
+              GlobalTotalDis = GlobalTotalDis - (1.5 *(size[income]));
+
+              for(i = 0;i< NWP.length;i++){
+              var c = awe.projections.view(NWP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: c.scale.x+(scaling * size[pos]), y: c.scale.y+(scaling * size[pos]), z: c.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:NWP[i]}
+                });
+              }
+
+              for(i = 0;i< NP.length;i++){
+              var a = awe.projections.view(NP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: a.scale.x+(scaling * size[pos]), y: a.scale.y+(scaling * size[pos]), z: a.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:NP[i]}
+                });
+              }
+              for(i = 0;i< NEP.length;i++){
+              var b = awe.projections.view(NEP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: b.scale.x+(scaling * size[pos]), y: b.scale.y+(scaling * size[pos]), z: b.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:NEP[i]}
+                });
+              }
+              pos++;
+              //
+              
+              for(i = 0;i< EP.length;i++){
+              var d = awe.projections.view(EP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: d.scale.x+(scaling * size[pos]), y: d.scale.y+(scaling * size[pos]), z: d.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:EP[i]}
+                });
+              }
+              pos++;
+              //
+              for(i = 0;i< SEP.length;i++){
+              var h = awe.projections.view(SEP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: h.scale.x+(scaling * size[pos]), y: h.scale.y+(scaling * size[pos]), z: h.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:SEP[i]}
+                });
+              }
+  
+              //
+              for(i = 0;i< SP.length;i++){
+              var g = awe.projections.view(SP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: g.scale.x+(scaling * size[pos]), y: g.scale.y+(scaling * size[pos]), z: g.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:SP[i]}
+                });
+              }
+      
+              //
+              for(i = 0;i< SWP.length;i++){
+              var f = awe.projections.view(SWP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: f.scale.x+(scaling * size[pos]), y: f.scale.y+(scaling * size[pos]), z: f.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:SWP[i]}
+                });
+              }
+              pos++;
+              //
+              for(i = 0;i< WP.length;i++){
+              var e = awe.projections.view(WP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: e.scale.x+(scaling * size[pos]), y: e.scale.y+(scaling * size[pos]), z: e.scale.z+(scaling * size[pos])},
+                  },
+                  where:{ id:WP[i]}
+                });
+              }
+              //                  
+
+             }
+
+
+
+
+
+
+
+      
+
+			
+              // setup some code to handle when an object is clicked/tapped
+           //window.addEventListener('object_clicked', function(e) { 
+
+            function Startdis(){
+             var distance = Globaldistance
+             var scale =0.8;
+             if(distance >= 20)scale = -0.8;
+             else if (distance <=2)scale = 0;
+                  else scale = ((distance-2)/18)*(-0.8);
+             return scale;
+            }
+
+            function Startobject(){
+              var scale = Startdis();
+
+              for(i = 0;i< NP.length;i++){
+              var a = awe.projections.view(NP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: a.scale.x+scale, y: a.scale.y+scale, z: a.scale.z+scale},
+                  },
+                  where:{ id:NP[i]}
+                });
+              }
+              //
+              for(i = 0;i< NEP.length;i++){
+              var b = awe.projections.view(NEP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: b.scale.x+scale, y: b.scale.y+scale, z: b.scale.z+scale},
+                  },
+                  where:{ id:NEP[i]}
+                });
+              }
+              //
+              for(i = 0;i< NWP.length;i++){
+              var c = awe.projections.view(NWP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: c.scale.x+scale, y: c.scale.y+scale, z: c.scale.z+scale},
+                  },
+                  where:{ id:NWP[i]}
+                });
+              }
+              //
+              for(i = 0;i< EP.length;i++){
+              var d = awe.projections.view(EP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: d.scale.x+scale, y: d.scale.y+scale, z: d.scale.z+scale},
+                  },
+                  where:{ id:EP[i]}
+                });
+              }
+              //
+              for(i = 0;i< WP.length;i++){
+              var e = awe.projections.view(WP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: e.scale.x+scale, y: e.scale.y+scale, z: e.scale.z+scale},
+                  },
+                  where:{ id:WP[i]}
+                });
+              }
+              //
+              for(i = 0;i< SWP.length;i++){
+              var f = awe.projections.view(SWP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: f.scale.x+scale, y: f.scale.y+scale, z: f.scale.z+scale},
+                  },
+                  where:{ id:SWP[i]}
+                });
+              }
+              //
+              for(i = 0;i< SP.length;i++){
+              var g = awe.projections.view(SP[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: g.scale.x+scale, y: g.scale.y+scale, z: g.scale.z+scale},
+                  },
+                  where:{ id:SP[i]}
+                });
+              }
+              //
+              for(i = 0;i< SE.length;i++){
+              var h = awe.projections.view(SE[i]);
+                awe.projections.update({ // rotate clicked object by 180 degrees around x and y axes over 10 seconds
+                  data:{
+
+                    //scale: { x: p.scale.x-0.8, y: p.scale.y-0.8, z: p.scale.z-0.8},
+             
+                    scale: { x: h.scale.x+scale, y: h.scale.y+scale, z: h.scale.z+scale},
+                  },
+                  where:{ id:SE[i]}
+                });
+              }
+              //
+          }
+
+
+          //    }, false);
+
+			        // add some points of interest (poi) for each of the compass points
+
+              
+
+			        awe.pois.add({ id:'north', position: { x:0, y:0, z:200 } });
+              awe.pois.add({ id:'north2', position: { x:0, y:-80, z:200 } });
+			        awe.pois.add({ id:'north_east', position: { x:200, y:0, z:200 } });
+			        awe.pois.add({ id:'east', position: { x:200, y:0, z:0 } });
+              awe.pois.add({ id:'east2', position: { x:220, y:-50, z:0 } });
+			        awe.pois.add({ id:'south_east', position: { x:200, y:0, z:-200 } });
+			        awe.pois.add({ id:'south', position: { x:0, y:0, z:-200 } });
+			        awe.pois.add({ id:'south_west', position: { x:-200, y:0, z:-200 } });
+			        awe.pois.add({ id:'west', position: { x:-200, y:0, z:0 } });
+			        awe.pois.add({ id:'north_west', position: { x:-200, y:0, z:200 } });
+			         
+			        // add projections to each of the pois
+              NP.push('n');
+			        awe.projections.add({ 
+			          id:'n', 
+			          geometry:{shape: 'plane', height: 100, width: 200, widthSegments: 1, heightSegments: 1},
+                	  rotation:{ x:0, y:180, z:0 },
+			          material:{ 
+			            color:0xFFFFFF
+			          },
+			          //texture: { path: 'http://www.youtube.com/embed/JW5meKfy3fY?autoplay=1' },
+			          //texture: { path: 'tokyo2016.mp4' },
+			          texture: { path: 'Fuji3.mp4' },
+			          visible: true,
+			          cast_shadow: true,
+  					  receive_shadow: true,
+			        }, { poi_id: 'north' });
+
+
+
+                NP.push('n2');
+                awe.projections.add({ 
+                id:'n2', 
+                geometry:{shape: 'plane', height:  80, width: 250, widthSegments: 1, heightSegments: 1},
+                    rotation:{ x:0, y:180, z:0 },
+                material:{ 
+                  color:0xFFFFFF
+                },
+                //texture: { path: 'http://www.youtube.com/embed/JW5meKfy3fY?autoplay=1' },
+                //texture: { path: 'tokyo2016.mp4' },
+                //texture: { path: 'tokyo.jpg' },
+                texture: { path: 'text.png' },
+                visible: true,
+                cast_shadow: true,
+              receive_shadow: true,
+              }, { poi_id: 'north2' });
+
+
+
+
+
+
+              NEP.push('ne');
+			        awe.projections.add({ 
+			          id:'ne', 
+			          geometry:{shape: 'plane', height: 40, width: 50, widthSegments: 1, heightSegments: 1},
+			          material:{ 
+			            color:0xCCCCCC
+			          },
+                texture: { path: 'icon.png' },
+			        }, { poi_id: 'north_east' });
+
+
+              EP.push('e');
+			        awe.projections.add({ 
+			          id:'e', 
+			          geometry:{shape: 'plane', height: 40, width: 50, widthSegments: 1, heightSegments: 1},
+                	  rotation:{ x:0, y:0, z:0 },
+			          material:{ 
+			            color:0xFFFFFF
+			          },
+			          texture: { path: 'icon.png' },
+			          visible: true,
+			          cast_shadow: true,
+  					  receive_shadow: true,
+			        }, { poi_id: 'east' });
+
+              EP.push('e2');
+              awe.projections.add({ 
+                id:'e2', 
+                geometry:{shape: 'plane', height: 30, width: 40, widthSegments: 1, heightSegments: 1},
+                    rotation:{ x:0, y:0, z:0 },
+                material:{ 
+                  color:0xFFFFFF
+                },
+                texture: { path: 'icon.png' },
+                visible: true,
+                cast_shadow: true,
+              receive_shadow: true,
+              }, { poi_id: 'east2' });
+
+              SEP.push('se');
+			        awe.projections.add({ 
+			          id:'se', 
+			          geometry:{shape: 'plane', height: 30, width: 40, widthSegments: 1, heightSegments: 1},
+			          material:{ 
+			            type: 'phong',
+			            color:0xCCCCCC, 
+			          },
+                texture: { path: 'icon.png' },
+			        }, { poi_id: 'south_east' });
+
+              SP.push('s');
+			        awe.projections.add({ 
+			          id:'s', 
+			          geometry:{shape: 'plane', height: 150, width: 300, widthSegments: 1, heightSegments: 1},
+                    rotation:{ x:0, y:0, z:0 },
+                material:{ 
+                  color:0xFFFFFF
+                },
+                texture: { path: 'mapkawaguchiko1.jpg' },
+			        }, { poi_id: 'south' });
+
+              SWP.push('sw');
+			        awe.projections.add({ 
+			          id:'sw', 
+			          geometry:{shape: 'plane', height: 40, width: 50, widthSegments: 1, heightSegments: 1},
+			          material:{ 
+			            type: 'phong',
+			            color:0xCCCCCC, 
+			          },
+                texture: { path: 'icon.png' },
+			        }, { poi_id: 'south_west' });
+
+              WP.push('w');
+			        awe.projections.add({ 
+			          id:'w', 
+			          geometry:{shape: 'plane', height: 40, width: 50, widthSegments: 1, heightSegments: 1},
+                rotation:{ x:0, y:0, z:0 }, 
+			          material:{ 
+			            type: 'phong',
+			            color:0x0000FF, 
+			          },
+                texture: { path: 'icon.png' },
+			        }, { poi_id: 'west' });
+
+              NWP.push('nw');
+			        awe.projections.add({ 
+			          id:'nw', 
+			          geometry:{shape: 'plane', height: 80, width: 100, widthSegments: 1, heightSegments: 1},
+                rotation:{ x:0, y:0, z:0 },
+			          material:{ 
+			            type: 'phong',
+			            color:0xCCCCCC, 
+			          },
+                texture: { path: 'icon.png' },
+			        }, { poi_id: 'north_west' });
+			Startobject();
+
+      //getLocation();
+            },
+          },
+          { // else create a fallback
+            capabilities: [],
+            files: [],
+            success: function() { 
+              document.body.innerHTML = '<p>This demo currently requires a standards compliant mobile browser (e.g. Firefox on Android). NOTE: iOS does not currently support WebGL or WebRTC and has not implemented the DeviceOrientation API correctly. Please see <a href="http://lists.w3.org/Archives/Public/public-geolocation/2014Jan/0000.html">this post to the W3C GeoLocation Working Group</a> for more detailed information.</p>';
+              return;
+            },
+          },
+        ]);
+      }
+    });
+  });
+</script>
+
+
+<a href="mapkawaguchiko.jpg" download id="download" hidden></a>
+
+
+</body>
+</html>
